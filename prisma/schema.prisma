@@ -59,6 +59,7 @@ model VisitorSession {
   createdAt DateTime   @default(now())
   cartItems CartItem[]
   orders    Order[]
+  customer  Customer?
 
   @@index([expiresAt])
 }
@@ -161,4 +162,73 @@ model RateLimit {
   expiresAt DateTime
 
   @@index([expiresAt])
+}
+
+enum CustomerRole {
+  CUSTOMER
+  ADMIN
+}
+
+enum AccountTokenKind {
+  VERIFY
+  RESET
+}
+
+model Customer {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String
+  passwordHash  String
+  role          CustomerRole   @default(CUSTOMER)
+  active        Boolean        @default(true)
+  verifiedAt    DateTime?
+  cartSessionId String         @unique
+  cartSession   VisitorSession @relation(fields: [cartSessionId], references: [id], onDelete: Restrict)
+  sessions      AuthSession[]
+  tokens        AccountToken[]
+  addresses     Address[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model AuthSession {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([customerId])
+  @@index([expiresAt])
+}
+
+model AccountToken {
+  id         String           @id @default(cuid())
+  tokenHash  String           @unique
+  kind       AccountTokenKind
+  customerId String
+  customer   Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime         @default(now())
+
+  @@index([customerId, kind])
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  label      String
+  recipient  String
+  phone      String
+  department String
+  city       String
+  street     String
+  additional String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([customerId])
 }

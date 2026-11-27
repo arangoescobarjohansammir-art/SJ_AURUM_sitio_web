@@ -89,7 +89,7 @@ await client.end();
 try {
   await writeFile(
     ".env",
-    `DATABASE_URL=postgresql://${config.user}:${config.password}@127.0.0.1:${config.port}/aurum_dev\nAPP_URL=http://127.0.0.1:3000\nAPP_ENV=development\nDEMO_CHECKOUT_ENABLED=true\nCOMMERCE_ENABLED=false\n`,
+    `DATABASE_URL=postgresql://${config.user}:${config.password}@127.0.0.1:${config.port}/aurum_dev\nAPP_URL=http://127.0.0.1:3000\nAPP_ENV=development\nLOCAL_MAIL_DIRECTORY=.local/mail\nDEMO_CHECKOUT_ENABLED=true\nCOMMERCE_ENABLED=false\n`,
     { flag: "wx", mode: 0o600 },
   );
   console.log(

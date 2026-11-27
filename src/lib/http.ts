@@ -3,6 +3,7 @@ import { randomBytes, createHash } from "node:crypto";
 import { cookies } from "next/headers";
 import { ZodError } from "zod";
 import { getDb } from "./db";
+import { currentAuth } from "./auth-http";
 import { CommerceError } from "../modules/commerce/service";
 
 const cookieName = "aurum_visitor";
@@ -64,13 +65,17 @@ export async function limit(key: string, max = 30) {
     );
 }
 export async function visitor(create = false) {
+  const auth = await currentAuth();
+  if (auth) return auth.customer.cartSessionId;
   const jar = await cookies();
   const token = jar.get(cookieName)?.value;
   if (token && /^[a-f0-9]{64}$/.test(token)) {
     const session = await getDb().visitorSession.findUnique({
       where: { tokenHash: createHash("sha256").update(token).digest("hex") },
+      include: { customer: { select: { id: true } } },
     });
-    if (session && session.expiresAt > new Date()) return session.id;
+    if (session && !session.customer && session.expiresAt > new Date())
+      return session.id;
   }
   if (!create)
     throw new CommerceError(
