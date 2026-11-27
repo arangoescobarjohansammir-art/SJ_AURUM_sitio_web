@@ -9,14 +9,30 @@ import {
   recipientSchema,
   type OrderInput,
 } from "@/modules/commerce/validation";
-type Rate = { id: string; department: string; city: string; amount: number };
+import { normalizeDestination, type Rate } from "@/modules/shipping/validation";
+type Address = {
+  id: string;
+  label: string;
+  recipient: string;
+  phone: string;
+  street: string;
+  additional: string;
+  city: string;
+  department: string;
+};
 type Quote = {
+  address: Pick<
+    Address,
+    "recipient" | "phone" | "street" | "additional" | "city" | "department"
+  > | null;
   items: CartLine[];
   subtotal: number;
   discount: number;
   shipping: number;
   total: number;
   shippingLabel: string;
+  shippingCarrier: string;
+  shippingEstimate: string;
   quoteHash: string;
 };
 const example = {
@@ -30,6 +46,8 @@ export default function Page() {
   const { ready, cart, refresh } = useShop(),
     router = useRouter();
   const [rates, setRates] = useState<Rate[]>([]),
+    [addresses, setAddresses] = useState<Address[]>([]),
+    [addressId, setAddressId] = useState(""),
     [rate, setRate] = useState(""),
     [coupon, setCoupon] = useState(""),
     [recipient, setRecipient] = useState(example),
@@ -45,6 +63,34 @@ export default function Page() {
       .then((r) => setRates(r.rates))
       .catch((e) => setError(e.message));
   }, []);
+  useEffect(() => {
+    if (ready)
+      void api<{ addresses: Address[] }>("/api/account/addresses")
+        .then((r) => setAddresses(r.addresses))
+        .catch((e) => {
+          if (!(e instanceof ApiError) || e.status !== 401) setError(e.message);
+        });
+  }, [ready]);
+  function chooseAddress(id: string) {
+    setAddressId(id);
+    const a = addresses.find((a) => a.id === id);
+    if (!a) return;
+    setRecipient((r) => ({
+      ...r,
+      name: a.recipient,
+      phone: a.phone,
+      address: a.street,
+      additional: a.additional,
+    }));
+    setRate(
+      rates.find(
+        (r) =>
+          normalizeDestination(r.city) === normalizeDestination(a.city) &&
+          normalizeDestination(r.department) ===
+            normalizeDestination(a.department),
+      )?.id ?? "",
+    );
+  }
   async function review(e: React.FormEvent) {
     e.preventDefault();
     if (lock.current) return;
@@ -59,12 +105,24 @@ export default function Page() {
         );
       const q = await api<Quote>("/api/checkout/quote", "POST", {
         shippingRateId: rate,
+        ...(addressId ? { addressId } : {}),
         coupon,
       });
+      const confirmedRecipient = q.address
+        ? {
+            ...parsed.data,
+            name: q.address.recipient,
+            phone: q.address.phone,
+            address: q.address.street,
+            additional: q.address.additional,
+          }
+        : parsed.data;
+      setRecipient(confirmedRecipient);
       attempt.current = {
         shippingRateId: rate,
+        ...(addressId ? { addressId } : {}),
         coupon,
-        recipient: parsed.data,
+        recipient: confirmedRecipient,
         quoteHash: q.quoteHash,
         idempotencyKey: crypto.randomUUID(),
         acceptedDemo: true,
@@ -111,7 +169,8 @@ export default function Page() {
       <h1>Revisa tu pedido</h1>
       <p className="notice">
         Prueba con los datos ficticios precargados. No ingreses información
-        personal real. No hay cobros reales ni envíos. Después de crear la reserva podrás probar Wompi desde tus pedidos.
+        personal real. No hay cobros reales ni envíos. Después de crear la
+        reserva podrás probar Wompi desde tus pedidos.
       </p>
       {error && (
         <p className="notice" role="alert">
@@ -135,6 +194,9 @@ export default function Page() {
             </p>
             <p>
               {recipient.address} · {quote.shippingLabel}
+            </p>
+            <p>
+              {quote.shippingCarrier} · {quote.shippingEstimate}
             </p>
             {quote.items.map((l) => (
               <article className="review-line" key={l.variantId}>
@@ -208,6 +270,27 @@ export default function Page() {
         <form className="checkout-form" onSubmit={review}>
           <fieldset disabled={busy}>
             <legend>1. Datos ficticios del destinatario</legend>
+            <label>
+              Dirección guardada
+              <select
+                value={addressId}
+                onChange={(e) => chooseAddress(e.target.value)}
+              >
+                <option value="">Ingresar dirección manualmente</option>
+                {addresses.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.label} · {a.city}, {a.department}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <Link href="/cuenta">Administrar mis direcciones</Link>
+            {addressId && !rate && (
+              <p role="alert">
+                Esta dirección está fuera de la cobertura disponible. Elige otra
+                dirección.
+              </p>
+            )}
             {(
               [
                 { key: "name", label: "Nombre", type: "text", max: 100 },
@@ -235,6 +318,7 @@ export default function Page() {
                 {f.label}
                 <input
                   required
+                  disabled={!!addressId && f.key !== "email"}
                   type={f.type}
                   maxLength={f.max}
                   value={recipient[f.key]}
@@ -251,13 +335,15 @@ export default function Page() {
               Ciudad y departamento
               <select
                 required
+                disabled={!!addressId}
                 value={rate}
                 onChange={(e) => setRate(e.target.value)}
               >
                 <option value="">Elige un destino</option>
                 {rates.map((r) => (
                   <option key={r.id} value={r.id}>
-                    {r.city}, {r.department} · {formatCOP(r.amount)}
+                    {r.city}, {r.department} · {formatCOP(r.amount)} ·{" "}
+                    {r.carrier} · {r.minDays}–{r.maxDays} días hábiles
                   </option>
                 ))}
               </select>
@@ -276,7 +362,7 @@ export default function Page() {
               disponibilidad de prueba. Tarifas ilustrativas.
             </p>
           </fieldset>
-          <button className="button" disabled={busy || !rates.length}>
+          <button className="button" disabled={busy || !rates.length || !rate}>
             {busy ? "Calculando…" : "Revisar resumen"}
           </button>
         </form>

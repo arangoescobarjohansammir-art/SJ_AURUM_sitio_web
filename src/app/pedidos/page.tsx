@@ -8,7 +8,8 @@ import { formatCOP } from "@/lib/money";
 import { useShop } from "@/components/shop-provider";
 import { orderStates } from "@/modules/admin/orders-validation";
 import { paymentLabels } from "@/modules/payments/labels";
-type Order = {
+import { ShipmentTimeline } from "@/components/shipment-timeline";
+type Order = import("@/modules/shipping/validation").ShippingView & {
   id: string;
   number: string;
   status: keyof typeof orderStates;
@@ -198,6 +199,7 @@ export default function Page() {
             <p>
               {date(o.createdAt)} · {o.shippingLabel}
             </p>
+            <ShipmentTimeline shipment={o} />
             {o.items.map((i, n) => (
               <p key={n}>
                 {i.productName} · {i.variantLabel} × {i.quantity}

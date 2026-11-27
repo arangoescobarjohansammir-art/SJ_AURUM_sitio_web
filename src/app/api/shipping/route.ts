@@ -5,7 +5,15 @@ export async function GET() {
     return response({
       rates: await getDb().shippingRate.findMany({
         where: { active: true, demo: true },
-        select: { id: true, department: true, city: true, amount: true },
+        select: {
+          id: true,
+          department: true,
+          city: true,
+          amount: true,
+          carrier: true,
+          minDays: true,
+          maxDays: true,
+        },
         orderBy: { city: "asc" },
       }),
     });

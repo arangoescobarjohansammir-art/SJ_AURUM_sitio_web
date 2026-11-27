@@ -24,6 +24,7 @@ export default async function Page() {
       <p className="eyebrow">Gestión de SJ AURUM</p>
       <h1>Pedidos</h1>
       <nav className="admin-toolbar" aria-label="Administración">
+        <Link href="/admin/envios">Envíos y cobertura</Link>
         <Link href="/admin">Catálogo e inventario</Link>
         <Link href="/admin/pedidos" aria-current="page">
           Pedidos
@@ -31,8 +32,9 @@ export default async function Page() {
         <Link href="/admin/biblioteca">Fotografías y colecciones</Link>
       </nav>
       <p className="notice">
-        Pedidos de ejemplo, sin pagos ni despachos. El seguimiento es interno y
-        no envía avisos al cliente. Las reservas vencen a los 15 minutos.
+        Pedidos de ejemplo con pagos Sandbox, sin despachos reales. El
+        seguimiento interno no envía avisos al cliente. Los eventos de envío se
+        muestran en sus pedidos. Las reservas vencen a los 15 minutos.
       </p>
       <OrdersWorkspace />
     </main>

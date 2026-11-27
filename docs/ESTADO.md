@@ -1,6 +1,10 @@
 # Estado de desarrollo — administración de catálogo e inventario
 
-## Incremento más reciente: Wompi Sandbox
+## Incremento más reciente: envíos de ejemplo
+
+27 de noviembre de 2026. Panel de cobertura, tarifas, transportadora y plazos; direcciones guardadas con comprobación de propiedad/cobertura; instantánea de dirección y tarifa al comprar; seguimiento manual con guía e historial visible al propietario. Solo pedidos con pago aprobado, sin reembolsos solicitados. No hay integración con transportadora real. Detalles: ENVIOS.md. Verificación: TypeScript, compilación, 10 pruebas unitarias, 6 grupos de envíos, controles HTTP y regresiones de pedidos (7), pagos (7) y comercio (8) aprobados.
+
+## Incremento anterior: Wompi Sandbox
 
 Actualización: el widget oficial con postMessage abre correctamente en navegador, muestra SJ aurum y el importe de prueba, y evita el recorrido /p/ que devolvía 403. Receptor restringido a eventos y túnel ngrok HTTPS activos; el usuario confirmó guardar la URL en Wompi Sandbox. Diez pruebas unitarias/receptor, siete grupos de pagos y TypeScript aprobados. Pendiente completar el pago Sandbox y verificar la entrega real del webhook; no equivale a comercio en producción.
 
@@ -36,7 +40,7 @@ Los vencimientos se procesan bajo demanda o con reservations:expire; falta progr
 
 1. Completar fase 2: novedades/popularidad respaldadas por datos y newsletter con consentimiento.
 2. Completar fase 3 con configuración comercial real y futura transición a pagos. La reserva de demostración no sustituye una venta.
-3. Completar fase 4 para producción: correo transaccional, endurecimiento y revisión de autenticación, controles administrativos, consentimiento/retención e integración de direcciones con checkout.
+3. Completar fase 4 para producción: correo transaccional, endurecimiento y revisión de autenticación, controles administrativos, consentimiento/retención y revisión de direcciones para producción.
 4. Fase 5: proveedor de pagos confirmado, webhooks verificados, conciliación, reembolsos, correo y transporte.
 5. Fase 6: certificados, condiciones versionadas y fidelización.
 6. Completar fase 7: almacenamiento de imágenes de producción, clientes, cupones, marketing y configuración; gestión logística/comercial de pedidos cuando existan pagos. Catálogo, variantes y ajustes de inventario ya disponen de panel protegido.

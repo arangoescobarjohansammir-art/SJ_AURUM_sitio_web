@@ -1,5 +1,6 @@
 import { z } from "zod";
 export const checkoutSchema = z.object({
+  addressId: z.string().min(1).max(100).optional(),
   shippingRateId: z.string().min(1).max(100),
   coupon: z.string().trim().toUpperCase().max(40).default(""),
 });

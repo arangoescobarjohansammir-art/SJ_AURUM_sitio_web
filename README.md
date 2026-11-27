@@ -1,5 +1,7 @@
 # SJ AURUM
 
+Envíos de ejemplo: cobertura y tarifas en /admin/envios, direcciones guardadas en checkout y seguimiento manual desde pedidos. Guía: [docs/ENVIOS.md](docs/ENVIOS.md).
+
 Tienda de joyería y accesorios de oro laminado para Colombia, desarrollada por fases desde las referencias de Stitch y el logo original.
 
 ## Estado

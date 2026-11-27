@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { formatCOP } from "@/lib/money";
+import { ShipmentTimeline } from "@/components/shipment-timeline";
+import { shippingStates } from "@/modules/shipping/validation";
 import { paymentLabels } from "@/modules/payments/labels";
 import {
   followUps,
@@ -127,6 +129,82 @@ export function OrdersWorkspace() {
             Creado: {date(view.order.createdAt)} · Vencimiento:{" "}
             {date(view.order.expiresAt)} (hora de Colombia)
           </p>
+          <ShipmentTimeline shipment={view.order} />
+          {view.order.status === "PAID" &&
+            view.order.payment?.status === "APPROVED" &&
+            !view.order.payment.refund && (
+              <form
+                key={view.order.id + ":" + view.order.version}
+                className="checkout-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const f = new FormData(e.currentTarget);
+                  void run(async () => {
+                    await api(
+                      "/api/admin/orders/" + view.order.id + "/shipping",
+                      "POST",
+                      {
+                        expectedVersion: view.order.version,
+                        status: f.get("status"),
+                        carrier: f.get("carrier"),
+                        trackingNumber: f.get("trackingNumber"),
+                        note: f.get("note"),
+                      },
+                    );
+                    await read(view.order.id);
+                    setMessage("Seguimiento de envío actualizado.");
+                  });
+                }}
+              >
+                <fieldset disabled={busy || conflict}>
+                  <legend>Actualizar envío de ejemplo</legend>
+                  <label>
+                    Estado
+                    <select name="status" defaultValue="PREPARING">
+                      {Object.entries(shippingStates)
+                        .filter(([key]) => key !== "PENDING")
+                        .map(([key, label]) => (
+                          <option key={key} value={key}>
+                            {label}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                  <label>
+                    Transportadora
+                    <input
+                      name="carrier"
+                      required
+                      minLength={3}
+                      maxLength={100}
+                      defaultValue={view.order.shippingCarrier}
+                    />
+                  </label>
+                  <label>
+                    Número de guía
+                    <input
+                      name="trackingNumber"
+                      maxLength={80}
+                      defaultValue={view.order.trackingNumber}
+                    />
+                  </label>
+                  <label>
+                    Nota visible para el cliente
+                    <textarea
+                      name="note"
+                      required
+                      minLength={8}
+                      maxLength={500}
+                    />
+                  </label>
+                  <p>
+                    Primero preparación, después tránsito y entrega. Guía
+                    obligatoria desde el despacho. No se notificará por correo.
+                  </p>
+                  <button className="button">Guardar seguimiento</button>
+                </fieldset>
+              </form>
+            )}
           <div className="account-grid">
             <section className="account-panel">
               <h3>Destinatario</h3>

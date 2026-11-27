@@ -95,6 +95,10 @@ model Coupon {
 }
 
 model ShippingRate {
+  version    Int @default(0)
+  carrier    String @default("Transportadora de ejemplo")
+  minDays    Int @default(2)
+  maxDays    Int @default(5)
   id         String  @id
   department String
   city       String
@@ -106,6 +110,11 @@ model ShippingRate {
 }
 
 model Order {
+  shippingCarrier String @default("Por definir")
+  shippingEstimate String @default("Por definir")
+  shippingStatus String @default("PENDING")
+  trackingNumber String @default("")
+  shippingEvents ShippingEvent[]
   payment        Payment?
   followUp       String              @default("PENDING")
   version        Int                 @default(0)
@@ -136,6 +145,16 @@ model Order {
   @@index([demo, createdAt])
   @@index([status, expiresAt])
   @@index([sessionId, createdAt])
+}
+
+model ShippingEvent {
+  id String @id @default(uuid())
+  orderId String
+  order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  status String
+  note String
+  createdAt DateTime @default(now())
+  @@index([orderId, createdAt])
 }
 
 model Payment {

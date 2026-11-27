@@ -1,3 +1,4 @@
+import { shippingSelection } from "../shipping/selection";
 import { adminTransaction } from "./service";
 import { CommerceError, release } from "../commerce/service";
 import { orderFilters, orderChange } from "./orders-validation";
@@ -83,6 +84,7 @@ export async function adminOrderDetail(token: string | undefined, id: string) {
       where: { id },
       select: {
         ...summary,
+        ...shippingSelection,
         subtotal: true,
         discount: true,
         shipping: true,

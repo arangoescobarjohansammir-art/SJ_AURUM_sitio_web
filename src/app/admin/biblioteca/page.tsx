@@ -24,6 +24,7 @@ export default async function Page() {
       <p className="eyebrow">Gestión de SJ AURUM</p>
       <h1>Fotografías y colecciones</h1>
       <nav className="admin-toolbar" aria-label="Administración">
+        <Link href="/admin/envios">Envíos y cobertura</Link>
         <Link href="/admin">Catálogo e inventario</Link>
         <Link href="/admin/pedidos">Pedidos</Link>
         <Link href="/admin/biblioteca" aria-current="page">

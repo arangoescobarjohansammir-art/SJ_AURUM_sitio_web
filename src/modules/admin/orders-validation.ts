@@ -53,39 +53,40 @@ export type OrderSummary = {
   expiresAt: string;
   shippingLabel: string;
 };
-export type OrderDetail = OrderSummary & {
-  payment: {
-    status: string;
-    transactionId: string | null;
-    checkedAt: string | null;
-    refund: { status: string } | null;
-  } | null;
-  subtotal: number;
-  discount: number;
-  shipping: number;
-  couponCode: string | null;
-  recipient: {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    additional: string;
+export type OrderDetail = OrderSummary &
+  import("../shipping/validation").ShippingView & {
+    payment: {
+      status: string;
+      transactionId: string | null;
+      checkedAt: string | null;
+      refund: { status: string } | null;
+    } | null;
+    subtotal: number;
+    discount: number;
+    shipping: number;
+    couponCode: string | null;
+    recipient: {
+      name: string;
+      email: string;
+      phone: string;
+      address: string;
+      additional: string;
+    };
+    items: {
+      productName: string;
+      variantLabel: string;
+      sku: string;
+      unitPrice: number;
+      quantity: number;
+    }[];
+    movements: {
+      id: string;
+      kind: string;
+      quantity: number;
+      reason: string;
+      createdAt: string;
+    }[];
   };
-  items: {
-    productName: string;
-    variantLabel: string;
-    sku: string;
-    unitPrice: number;
-    quantity: number;
-  }[];
-  movements: {
-    id: string;
-    kind: string;
-    quantity: number;
-    reason: string;
-    createdAt: string;
-  }[];
-};
 export type OrderHistory = {
   id: string;
   action: string;

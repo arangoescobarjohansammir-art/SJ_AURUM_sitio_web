@@ -1,3 +1,5 @@
+import { shippingSelection } from "../shipping/selection";
+import { normalizeDestination } from "../shipping/validation";
 import { createHash, randomUUID } from "node:crypto";
 import { getDb } from "../../lib/db";
 import type { Prisma } from "../../generated/prisma/client";
@@ -168,6 +170,35 @@ async function calculateQuote(tx: Tx, sessionId: string, input: CheckoutInput) {
       "NO_SHIPPING",
       "Elige un destino de prueba disponible.",
     );
+  const address = input.addressId
+    ? await tx.address.findFirst({
+        where: { id: input.addressId, customer: { cartSessionId: sessionId } },
+        select: {
+          recipient: true,
+          phone: true,
+          street: true,
+          additional: true,
+          city: true,
+          department: true,
+        },
+      })
+    : null;
+  if (input.addressId && !address)
+    throw new CommerceError(
+      "ADDRESS_NOT_FOUND",
+      "La dirección no está disponible en tu cuenta.",
+      404,
+    );
+  if (
+    address &&
+    (normalizeDestination(address.city) !== normalizeDestination(rate.city) ||
+      normalizeDestination(address.department) !==
+        normalizeDestination(rate.department))
+  )
+    throw new CommerceError(
+      "NO_SHIPPING",
+      "No hay cobertura para la dirección seleccionada.",
+    );
   const subtotal = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
   const coupon = input.coupon
     ? await tx.coupon.findUnique({ where: { code: input.coupon } })
@@ -199,6 +230,11 @@ async function calculateQuote(tx: Tx, sessionId: string, input: CheckoutInput) {
     })),
     shipping: rate.id,
     shippingAmount: rate.amount,
+    rateVersion: rate.version,
+    carrier: rate.carrier,
+    minDays: rate.minDays,
+    maxDays: rate.maxDays,
+    address,
     coupon: coupon?.code ?? null,
     discount,
     total,
@@ -210,6 +246,9 @@ async function calculateQuote(tx: Tx, sessionId: string, input: CheckoutInput) {
     shipping: rate.amount,
     total,
     currency: "COP" as const,
+    address,
+    shippingCarrier: rate.carrier,
+    shippingEstimate: `${rate.minDays}–${rate.maxDays} días hábiles desde el despacho (estimado de ejemplo)`,
     shippingRateId: rate.id,
     shippingLabel: `${rate.city}, ${rate.department}`,
     coupon: coupon?.code ?? null,
@@ -296,7 +335,17 @@ export async function createOrder(sessionId: string, input: unknown) {
         shipping: quote.shipping,
         total: quote.total,
         couponCode: quote.coupon,
-        recipient: parsed.recipient,
+        recipient: quote.address
+          ? {
+              ...parsed.recipient,
+              name: quote.address.recipient,
+              phone: quote.address.phone,
+              address: quote.address.street,
+              additional: quote.address.additional,
+            }
+          : parsed.recipient,
+        shippingCarrier: quote.shippingCarrier,
+        shippingEstimate: quote.shippingEstimate,
         shippingLabel: quote.shippingLabel,
         expiresAt: new Date(Date.now() + 15 * 60 * 1000),
         items: {
@@ -418,6 +467,7 @@ export async function listOrders(sessionId: string) {
       currency: true,
       demo: true,
       shippingLabel: true,
+      ...shippingSelection,
       expiresAt: true,
       createdAt: true,
       payment: {
