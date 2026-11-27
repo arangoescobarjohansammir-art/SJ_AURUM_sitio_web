@@ -1,3 +1,4 @@
+import { queueOrderMail } from "../mail/outbox";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { getDb } from "../../lib/db";
@@ -292,6 +293,12 @@ export async function generateEnvia(
           reason: "Respuesta confirmada de Envia Sandbox",
         },
       });
+      await queueOrderMail(
+        tx,
+        id,
+        "envia:" + id + ":created",
+        "Guía de prueba creada",
+      );
       return tx.enviaShipment.findUniqueOrThrow({
         where: { orderId: id },
         select: enviaSelection,

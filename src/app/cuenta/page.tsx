@@ -83,7 +83,8 @@ export default function Page() {
       <h1>Mi cuenta</h1>
       <p className="notice">
         Cuentas de desarrollo. Usa datos ficticios y una contraseña exclusiva
-        para esta prueba. No hay compras ni correos reales.
+        para esta prueba. No hay compras reales. Los correos de prueba pueden
+        enviarse a las direcciones habilitadas por el administrador.
       </p>
       {error && (
         <p className="notice" role="alert">
@@ -120,7 +121,7 @@ export default function Page() {
                   className="text-button"
                   onClick={() => action("verify")}
                 >
-                  Preparar verificación local
+                  Solicitar verificación
                 </button>
               )}
               <form

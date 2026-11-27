@@ -17,6 +17,17 @@ import { deliverLocalToken } from "@/modules/auth/mail";
 import { tokenHash } from "@/modules/auth/password";
 import { emailSchema } from "@/modules/auth/validation";
 import { CommerceError } from "@/modules/commerce/service";
+async function deliver(email: unknown, kind: "VERIFY" | "RESET") {
+  try {
+    await deliverLocalToken(email, kind);
+  } catch {
+    console.error("ACCOUNT_MAIL_DELIVERY_FAILED");
+  }
+}
+const deliveryNotice = () =>
+  process.env.MAIL_PROVIDER === "resend"
+    ? "Si la cuenta corresponde y el destinatario está habilitado para pruebas, recibirás un enlace por correo. Revisa también spam. Puedes volver a solicitarlo si no llega."
+    : "Si la cuenta corresponde, el enlace está en la bandeja local de desarrollo. No se ha enviado correo real.";
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ action: string }> },
@@ -51,11 +62,10 @@ export async function POST(
     }
     if (action === "register") {
       const user = await register(body);
-      if (user) await deliverLocalToken(user.email, "VERIFY");
+      if (user) await deliver(user.email, "VERIFY");
       return response(
         {
-          message:
-            "Si el correo permite crear una cuenta, se preparó su verificación en la bandeja local. No se envió correo real. Puedes iniciar sesión con tus datos.",
+          message: deliveryNotice(),
         },
         202,
       );
@@ -83,14 +93,13 @@ export async function POST(
       return response({ ok: true });
     }
     if (action === "request-reset" || action === "request-verification") {
-      await deliverLocalToken(
+      await deliver(
         body.email,
         action === "request-reset" ? "RESET" : "VERIFY",
       );
       return response(
         {
-          message:
-            "Si la cuenta corresponde, el enlace está en la bandeja local de desarrollo. No se ha enviado un correo real.",
+          message: deliveryNotice(),
         },
         202,
       );

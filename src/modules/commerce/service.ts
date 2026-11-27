@@ -1,3 +1,4 @@
+import { queueOrderMail } from "../mail/outbox";
 import { shippingSelection } from "../shipping/selection";
 import { normalizeDestination } from "../shipping/validation";
 import { createHash, randomUUID } from "node:crypto";
@@ -377,6 +378,12 @@ export async function createOrder(sessionId: string, input: unknown) {
       })),
     });
     await tx.cartItem.deleteMany({ where: { sessionId } });
+    await queueOrderMail(
+      tx,
+      order.id,
+      "order:" + order.id + ":created",
+      "Pedido de prueba recibido",
+    );
     return order;
   });
 }
@@ -432,6 +439,13 @@ export async function release(
         data: { used: { decrement: 1 } },
       });
   }
+  if (changed.count)
+    await queueOrderMail(
+      tx,
+      id,
+      "order:" + id + ":" + status,
+      status === "CANCELLED" ? "Pedido cancelado" : "Reserva vencida",
+    );
   return tx.order.findUniqueOrThrow({
     where: { id },
     include: { items: true },

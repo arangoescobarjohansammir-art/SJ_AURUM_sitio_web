@@ -6,7 +6,7 @@ Tienda de joyería y accesorios de oro laminado para Colombia, desarrollada por 
 
 ## Estado
 
-Inicio, catálogo, detalle, favoritos y bolsa responsive. El catálogo y la bolsa consultan PostgreSQL. El checkout genera pedidos de prueba persistidos, calcula precios, cupones y envíos en el servidor y reserva inventario durante 15 minutos. El historial privado del navegador o de la cuenta permite cancelarlos. Mi cuenta incluye registro, acceso, perfil, direcciones, verificación y recuperación mediante bandeja local.
+Inicio, catálogo, detalle, favoritos y bolsa responsive. El catálogo y la bolsa consultan PostgreSQL. El checkout genera pedidos de prueba persistidos, calcula precios, cupones y envíos en el servidor y reserva inventario durante 15 minutos. El historial privado del navegador o de la cuenta permite cancelarlos. Mi cuenta incluye registro, acceso, perfil, direcciones, verificación y recuperación mediante Resend o bandeja local. Correos de pedidos con cola persistente: [docs/CORREOS.md](docs/CORREOS.md).
 
 **No es una tienda operativa. No hay cobros ni envíos reales. Las cuentas funcionan solo en desarrollo.** Los productos, tarifas y condiciones son ejemplos autorizados. Alcance y pendientes en docs/ESTADO.md.
 
@@ -68,7 +68,7 @@ Commits por unidad funcional, tras verificar. No se ha desplegado hosting. La fi
 
 ## Mi cuenta y bandeja local
 
-Abrir /cuenta para registrar datos ficticios. Si .env ya existía, añadir LOCAL_MAIL_DIRECTORY=.local/mail. Para ver el enlace de verificación o recuperación: npm run mail:local -- cliente@example.invalid. Solo prepara mensajes locales; no envía correo real. Ver docs/CUENTAS.md para seguridad, sesiones, asociación de pedidos y límites antes de producción.
+Abrir /cuenta para registrar datos ficticios. Si .env ya existía, añadir LOCAL_MAIL_DIRECTORY=.local/mail. Para ver el enlace de verificación o recuperación: npm run mail:local -- cliente@example.invalid. Con MAIL_PROVIDER=local solo prepara mensajes locales. Para Resend y avisos reales, ver docs/CORREOS.md y mantener npm run mail:watch. Ver docs/CUENTAS.md para seguridad, sesiones, asociación de pedidos y límites antes de producción.
 
 ## Administración
 

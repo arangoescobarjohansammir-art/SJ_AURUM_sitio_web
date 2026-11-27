@@ -158,7 +158,7 @@ export function AccessForm() {
               ? "Entrar"
               : mode === "register"
                 ? "Registrar cuenta"
-                : "Preparar enlace local"}
+                : "Solicitar enlace"}
         </button>
       </form>
       <div className="account-tabs">
@@ -178,8 +178,9 @@ export function AccessForm() {
         </button>
       </div>
       <p className="muted">
-        La verificación y recuperación usan una bandeja local de desarrollo. No
-        se envían correos reales.
+        La verificación y recuperación usarán el canal de correo configurado
+        para esta prueba. El resultado de la solicitud indica dónde recibir el
+        enlace.
       </p>
     </section>
   );

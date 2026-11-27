@@ -1,3 +1,4 @@
+import { queueOrderMail } from "../mail/outbox";
 import { randomUUID } from "node:crypto";
 import { adminTransaction } from "../admin/service";
 import { CommerceError } from "../commerce/service";
@@ -123,7 +124,7 @@ export async function updateShipment(
         "EVENT_LIMIT",
         "Límite de 100 eventos de prueba por pedido.",
       );
-    await tx.shippingEvent.create({
+    const event = await tx.shippingEvent.create({
       data: { orderId: id, status: data.status, note: data.note },
     });
     const result = await tx.order.update({
@@ -154,6 +155,12 @@ export async function updateShipment(
         reason: data.note,
       },
     });
+    await queueOrderMail(
+      tx,
+      id,
+      "shipment:" + event.id,
+      "Actualización del envío de prueba",
+    );
     return result;
   });
 }

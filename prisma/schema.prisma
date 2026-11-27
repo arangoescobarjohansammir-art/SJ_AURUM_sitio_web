@@ -345,3 +345,25 @@ model EnviaShipment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model MailOutbox {
+ id String @id @default(uuid())
+ eventKey String @unique
+ orderId String
+ mode String
+ sender String
+ recipient String
+ subject String
+ text String
+ html String
+ status String @default("PENDING")
+ attempts Int @default(0)
+ nextAttemptAt DateTime @default(now())
+ lockedUntil DateTime?
+ firstAttemptAt DateTime?
+ providerId String?
+ lastError String?
+ createdAt DateTime @default(now())
+ sentAt DateTime?
+ @@index([status,nextAttemptAt])
+}

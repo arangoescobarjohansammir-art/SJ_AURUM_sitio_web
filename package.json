@@ -39,7 +39,13 @@
     "test:catalog-media-http": "tsx scripts/catalog-media-http.ts",
     "test:shipping": "tsx scripts/shipping-integration.ts",
     "test:shipping-http": "tsx scripts/shipping-http.ts",
-    "test:envia": "tsx scripts/envia-integration.ts"
+    "test:envia": "tsx scripts/envia-integration.ts",
+    "mail:worker": "tsx scripts/mail-worker.ts",
+    "mail:test": "tsx scripts/mail-test.ts",
+    "test:mail": "tsx scripts/mail-integration.ts",
+    "test:mail-auth": "node --conditions=react-server --import tsx scripts/mail-auth-integration.ts",
+    "mail:status": "tsx scripts/mail-status.ts",
+    "mail:watch": "tsx scripts/mail-worker.ts --watch"
   },
   "dependencies": {
     "@fontsource/playfair-display": "5.3.0",

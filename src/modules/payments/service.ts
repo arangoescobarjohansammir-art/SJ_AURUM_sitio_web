@@ -1,3 +1,4 @@
+import { queueOrderMail } from "../mail/outbox";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { getDb } from "../../lib/db";
@@ -149,6 +150,13 @@ export async function applyTransaction(
         where: { id: order.id },
         data: { status: "REFUNDED", version: { increment: 1 } },
       });
+    if (data.status !== payment.status && data.status !== "PENDING")
+      await queueOrderMail(
+        tx,
+        order.id,
+        "payment:" + payment.id + ":" + data.status,
+        "Actualización del pago de prueba",
+      );
     return { orderId: order.id, status: data.status };
   });
 }
@@ -282,6 +290,12 @@ export async function refundPayment(
         where: { id: orderId },
         data: { status: "REFUNDED", version: { increment: 1 } },
       });
+    await queueOrderMail(
+      tx,
+      orderId,
+      "refund:" + prepared.refund.id + ":" + result.status,
+      "Actualización del reembolso de prueba",
+    );
   });
   return { status: result.status };
 }

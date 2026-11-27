@@ -1,6 +1,10 @@
 # Estado de desarrollo — administración de catálogo e inventario
 
-## Incremento más reciente: Envia.com Sandbox
+## Incremento más reciente: correos con Resend
+
+Verificación y recuperación enviables por Resend; avisos de pedidos, pagos, reembolsos y envíos con cola persistente y reintentos idempotentes. Primer correo real aceptado por el proveedor y recepción confirmada por el usuario. Solo su correo habilitado, sin dominio propio ni habilitación comercial. Worker separado; ver CORREOS.md.
+
+## Incremento anterior: Envia.com Sandbox
 
 Integración administrativa para cotizar paquetes nacionales, elegir servicio, solicitar una guía de prueba una sola vez y consultar su estado. Credenciales solo en .env; producción bloqueada. Mantiene las tarifas manuales del checkout. Primer intento externo devolvió 401 en cotización y 503 en consultas; guía externa aún sin verificar. Ver ENVIA-SANDBOX.md.
 

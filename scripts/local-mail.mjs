@@ -18,7 +18,7 @@ const messages = [];
 for (const file of files.filter((name) => name.endsWith(".json"))) {
   const path = join(dir, file),
     data = JSON.parse(await readFile(path, "utf8"));
-  if (data.to === email)
+  if (data.to === email && ["VERIFY", "RESET"].includes(data.kind))
     messages.push({ ...data, time: (await stat(path)).mtimeMs });
 }
 messages.sort((a, b) => b.time - a.time);
