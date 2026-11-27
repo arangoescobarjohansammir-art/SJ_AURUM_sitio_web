@@ -6,13 +6,26 @@ export const followUps = {
   RESOLVED: "Resuelto",
 } as const;
 export const orderStates = {
+  PAID: "Pagado en pruebas",
+  PAYMENT_REVIEW: "Pago recibido · revisar reserva",
+  REFUNDED: "Reembolsado en pruebas",
   RESERVED: "Reservado",
   CANCELLED: "Cancelado",
   EXPIRED: "Vencido",
 } as const;
 export const orderFilters = z.object({
   query: z.string().trim().max(100).default(""),
-  status: z.enum(["", "RESERVED", "CANCELLED", "EXPIRED"]).default(""),
+  status: z
+    .enum([
+      "",
+      "RESERVED",
+      "CANCELLED",
+      "EXPIRED",
+      "PAID",
+      "PAYMENT_REVIEW",
+      "REFUNDED",
+    ])
+    .default(""),
   followUp: z
     .enum(["", "PENDING", "REVIEWED", "ISSUE", "RESOLVED"])
     .default(""),
@@ -41,6 +54,12 @@ export type OrderSummary = {
   shippingLabel: string;
 };
 export type OrderDetail = OrderSummary & {
+  payment: {
+    status: string;
+    transactionId: string | null;
+    checkedAt: string | null;
+    refund: { status: string } | null;
+  } | null;
   subtotal: number;
   discount: number;
   shipping: number;

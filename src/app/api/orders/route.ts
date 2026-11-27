@@ -11,11 +11,15 @@ import {
   listOrders,
   releaseExpired,
 } from "@/modules/commerce/service";
+import { paymentsEnabled } from "@/modules/payments/wompi";
 export async function GET() {
   try {
     const id = await visitor();
     await releaseExpired();
-    return response({ orders: await listOrders(id) });
+    return response({
+      orders: await listOrders(id),
+      paymentsEnabled: paymentsEnabled(),
+    });
   } catch (error) {
     return failure(error);
   }

@@ -7,6 +7,9 @@
     "effect": "3.22.1"
   },
   "scripts": {
+    "test:payments": "tsx scripts/payments-integration.ts",
+    "test:payments-http": "tsx scripts/payments-http.ts",
+    "payments:reconcile": "tsx scripts/reconcile-payments.ts",
     "dev": "next dev --webpack --hostname 127.0.0.1",
     "build": "next build",
     "start": "next start --hostname 127.0.0.1",

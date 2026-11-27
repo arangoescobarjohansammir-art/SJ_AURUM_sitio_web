@@ -19,7 +19,7 @@ Node >=22.12 y npm. Desde esta carpeta:
 
 El lanzador se ha verificado en Windows. No sobreescribe un .env existente: si se usa una base externa, configurar DATABASE_URL localmente. APP_URL debe coincidir exactamente con el origen visitado, incluido el puerto. No compartir credenciales por chat ni subir .env/.local a Git.
 
-El checkout requiere APP_ENV=development y DEMO_CHECKOUT_ENABLED=true. El lanzador local establece ambos. .env.example lo deja cerrado por defecto. COMMERCE_ENABLED=false documenta que los pagos siguen sin implementar; no existe una ruta de cobro.
+El checkout requiere APP_ENV=development y DEMO_CHECKOUT_ENABLED=true. El lanzador local establece ambos. .env.example lo deja cerrado por defecto. Wompi está integrado exclusivamente para Sandbox: botón en pedidos, verificación desde el servidor, receptor de eventos y reembolso total desde administración. Las llaves de producción se rechazan. Configuración, bloqueo 403 observado en el checkout externo y validación pendiente en [docs/PAGOS-WOMPI.md](docs/PAGOS-WOMPI.md). COMMERCE_ENABLED=false mantiene documentado que el comercio real no está habilitado.
 
 El seed solo crea ejemplos ausentes; preserva cambios existentes de precios e inventario. Usar Ctrl+C en ambas terminales al terminar. La carpeta .local conserva los datos para el siguiente inicio.
 
@@ -38,6 +38,8 @@ El seed solo crea ejemplos ausentes; preserva cambios existentes de precios e in
 - npm run test:admin-orders-http (servidor local activo).
 - npm run test:catalog-media (PostgreSQL local activo).
 - npm run test:catalog-media-http (servidor local activo).
+- npm run test:payments (base local aurum_test y proveedor simulado).
+- npm run test:payments-http (servidor local con llaves Sandbox).
 - npm audit
 
 Las pruebas de integración agregan registros aislados por identificador, sin borrar datos anteriores. No apuntarlas a producción.

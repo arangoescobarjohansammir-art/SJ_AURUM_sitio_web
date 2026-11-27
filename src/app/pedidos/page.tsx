@@ -4,10 +4,17 @@ import Link from "next/link";
 import { api } from "@/lib/api-client";
 import { formatCOP } from "@/lib/money";
 import { useShop } from "@/components/shop-provider";
+import { orderStates } from "@/modules/admin/orders-validation";
+import { paymentLabels } from "@/modules/payments/labels";
 type Order = {
   id: string;
   number: string;
-  status: "RESERVED" | "CANCELLED" | "EXPIRED";
+  status: keyof typeof orderStates;
+  payment: {
+    status: string;
+    transactionId: string | null;
+    refund: { status: string } | null;
+  } | null;
   total: number;
   shippingLabel: string;
   expiresAt: string;
@@ -20,6 +27,7 @@ type Order = {
   }[];
 };
 const states = {
+  ...orderStates,
   RESERVED: "Reserva de prueba",
   CANCELLED: "Cancelado",
   EXPIRED: "Reserva vencida",
@@ -36,9 +44,13 @@ export default function Page() {
     [loaded, setLoaded] = useState(false),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
+    [paymentsEnabled, setPaymentsEnabled] = useState(false),
     lock = useRef(false);
   async function load() {
-    const result = await api<{ orders: Order[] }>("/api/orders");
+    const result = await api<{ orders: Order[]; paymentsEnabled: boolean }>(
+      "/api/orders",
+    );
+    setPaymentsEnabled(result.paymentsEnabled);
     setOrders(result.orders);
     setLoaded(true);
     setError("");
@@ -65,6 +77,33 @@ export default function Page() {
       setBusy(false);
     }
   }
+  async function pay(order: Order, sync = false) {
+    if (lock.current) return;
+    lock.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      if (sync && order.payment?.transactionId) {
+        await api("/api/payments/sync", "POST", {
+          id: order.payment.transactionId,
+        });
+        await load();
+        await refresh();
+      } else {
+        const result = await api<{ url: string }>(
+          "/api/orders/" + encodeURIComponent(order.id) + "/payment",
+          "POST",
+          {},
+        );
+        window.location.assign(result.url);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No pudimos consultar Wompi.");
+    } finally {
+      lock.current = false;
+      setBusy(false);
+    }
+  }
   return (
     <main id="contenido" className="container page">
       <p className="eyebrow">Tu experiencia AURUM</p>
@@ -72,7 +111,8 @@ export default function Page() {
       <p className="notice">
         Al iniciar sesión verás los pedidos de tu cuenta; como visitante, los de
         este navegador. Las reservas duran 15 minutos y no representan compras,
-        pagos ni envíos. Horarios de Colombia.
+        cobros reales ni envíos. Puedes simular el pago en Wompi Sandbox.
+        Horarios de Colombia.
       </p>
       {error && <p role="alert">{error}</p>}
       <button
@@ -97,6 +137,29 @@ export default function Page() {
             <p className="eyebrow">{states[o.status]}</p>
             <h2>Tu selección · {formatCOP(o.total)}</h2>
             <p className="order-number">{o.number}</p>
+            {o.payment && (
+              <p>
+                Wompi Sandbox:{" "}
+                {paymentLabels[o.payment.status] ?? o.payment.status}
+                {o.payment.refund &&
+                  ` · Reembolso: ${paymentLabels[o.payment.refund.status] ?? o.payment.refund.status}`}
+              </p>
+            )}
+            {o.status === "PAYMENT_REVIEW" && (
+              <p className="notice">
+                El pago llegó cuando la reserva ya había terminado. El equipo
+                debe revisar el reembolso; este pedido no está listo para envío.
+              </p>
+            )}
+            {o.payment?.transactionId && (
+              <button
+                className="text-button"
+                disabled={busy}
+                onClick={() => void pay(o, true)}
+              >
+                Consultar pago en Wompi
+              </button>
+            )}
             <p>
               {date(o.createdAt)} · {o.shippingLabel}
             </p>
@@ -108,6 +171,16 @@ export default function Page() {
             {o.status === "RESERVED" && (
               <>
                 <p>Vence: {date(o.expiresAt)}</p>
+                {paymentsEnabled &&
+                  (!o.payment || o.payment.status === "CREATED") && (
+                    <button
+                      className="button"
+                      disabled={busy}
+                      onClick={() => void pay(o)}
+                    >
+                      Probar pago con Wompi
+                    </button>
+                  )}
                 <button
                   className="button secondary"
                   disabled={busy}

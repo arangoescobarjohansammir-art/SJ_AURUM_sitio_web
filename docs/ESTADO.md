@@ -1,5 +1,9 @@
 # Estado de desarrollo — administración de catálogo e inventario
 
+## Incremento más reciente: Wompi Sandbox
+
+Inicio de checkout con referencia y firma, receptor de eventos verificados y consulta al API, estados de pagos, protección de inventario frente a duplicados/pagos tardíos y solicitud de reembolso total auditada desde el panel. Solo pruebas, producción bloqueada. Nueve pruebas unitarias, siete grupos de pagos con proveedor simulado, regresión de comercio/pedidos y protección HTTP verificadas. La llave pública responde 200 para SJ aurum; el checkout externo devolvió 403 CloudFront durante la revisión en navegador. No se certifica aún un pago o reembolso externo completo. Falta HTTPS y configurar/probar webhook externo. Detalles y límites en PAGOS-WOMPI.md. Los apartados siguientes describen los incrementos anteriores.
+
 26 de noviembre de 2026, Colombia. Entrega incremental; no certifica el alcance final completo.
 
 ## Implementado

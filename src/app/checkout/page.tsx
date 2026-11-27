@@ -111,7 +111,7 @@ export default function Page() {
       <h1>Revisa tu pedido</h1>
       <p className="notice">
         Prueba con los datos ficticios precargados. No ingreses información
-        personal real. No hay pagos ni envíos.
+        personal real. No hay cobros reales ni envíos. Después de crear la reserva podrás probar Wompi desde tus pedidos.
       </p>
       {error && (
         <p className="notice" role="alert">

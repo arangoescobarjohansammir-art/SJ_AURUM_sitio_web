@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { formatCOP } from "@/lib/money";
+import { paymentLabels } from "@/modules/payments/labels";
 import {
   followUps,
   orderStates,
@@ -149,6 +150,82 @@ export function OrdersWorkspace() {
             </section>
           </div>
           <h3>Productos reservados</h3>
+          {view.order.payment && (
+            <section className="account-panel">
+              <h3>Pago Wompi Sandbox</h3>
+              <p>{paymentLabels[view.order.payment.status]}</p>
+              <p className="order-number">
+                Transacción:{" "}
+                {view.order.payment.transactionId ??
+                  "Sin transacción confirmada"}
+              </p>
+              {view.order.payment.refund && (
+                <p role="status">
+                  Reembolso:{" "}
+                  {paymentLabels[view.order.payment.refund.status] ??
+                    view.order.payment.refund.status}
+                  . Los resultados pendientes o sin confirmar se revisan en
+                  Wompi antes de volver a solicitar.
+                </p>
+              )}
+              {view.order.status === "PAYMENT_REVIEW" && (
+                <p className="notice">
+                  Pago recibido fuera de la reserva. No despachar: las unidades
+                  fueron liberadas. Revisa el reembolso.
+                </p>
+              )}
+              {["PAID", "PAYMENT_REVIEW"].includes(view.order.status) &&
+                view.order.payment.status === "APPROVED" &&
+                !view.order.payment.refund && (
+                  <form
+                    className="checkout-form"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const reason = new FormData(e.currentTarget).get(
+                        "reason",
+                      );
+                      const id = view.order.id;
+                      void run(async () => {
+                        try {
+                          await api(
+                            "/api/admin/orders/" + id + "/refund",
+                            "POST",
+                            { reason },
+                          );
+                          setMessage(
+                            "Solicitud de reembolso de prueba procesada.",
+                          );
+                        } finally {
+                          await read(id);
+                          await load(list?.page);
+                        }
+                      });
+                    }}
+                  >
+                    <label>
+                      Motivo del reembolso total
+                      <textarea
+                        name="reason"
+                        required
+                        minLength={8}
+                        maxLength={500}
+                      />
+                    </label>
+                    <label className="checkbox">
+                      <input type="checkbox" required /> Confirmo el reembolso
+                      total de prueba de {formatCOP(view.order.total)}.
+                    </label>
+                    <p>
+                      El reembolso no repone existencias automáticamente. Revisa
+                      la devolución física antes de ajustar inventario.
+                    </p>
+                    <button className="button secondary" disabled={busy}>
+                      Solicitar reembolso de prueba
+                    </button>
+                  </form>
+                )}
+            </section>
+          )}
           <div className="admin-list">
             {view.order.items.map((item) => (
               <article className="account-panel" key={item.sku}>
@@ -244,7 +321,11 @@ export function OrdersWorkspace() {
             {view.history.map((h) => (
               <li className="account-panel" key={h.id}>
                 <strong>
-                  {h.action === "ORDER_CANCEL" ? "Cancelación" : "Seguimiento"}{" "}
+                  {h.action === "ORDER_CANCEL"
+                    ? "Cancelación"
+                    : h.action === "PAYMENT_REFUND"
+                      ? "Reembolso solicitado"
+                      : "Seguimiento"}{" "}
                   · {h.actor.name}
                 </strong>
                 <p>{date(h.createdAt)}</p>
@@ -262,8 +343,12 @@ export function OrdersWorkspace() {
             {view.order.movements.map((m) => (
               <li key={m.id}>
                 {date(m.createdAt)} ·{" "}
-                {m.kind === "RESERVE" ? "Reserva" : "Liberación"}: {m.quantity}{" "}
-                unidades · {m.reason}
+                {m.kind === "RESERVE"
+                  ? "Reserva"
+                  : m.kind === "SALE"
+                    ? "Venta de prueba"
+                    : "Liberación"}
+                : {m.quantity} unidades · {m.reason}
               </li>
             ))}
           </ul>

@@ -88,6 +88,14 @@ export async function adminOrderDetail(token: string | undefined, id: string) {
         shipping: true,
         couponCode: true,
         recipient: true,
+        payment: {
+          select: {
+            status: true,
+            transactionId: true,
+            checkedAt: true,
+            refund: { select: { status: true } },
+          },
+        },
         items: {
           select: {
             productName: true,
@@ -112,7 +120,7 @@ export async function adminOrderDetail(token: string | undefined, id: string) {
     const history = await tx.adminAudit.findMany({
       where: {
         entityId: id,
-        action: { in: ["ORDER_FOLLOW_UP", "ORDER_CANCEL"] },
+        action: { in: ["ORDER_FOLLOW_UP", "ORDER_CANCEL", "PAYMENT_REFUND"] },
       },
       select: {
         id: true,

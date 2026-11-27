@@ -420,6 +420,13 @@ export async function listOrders(sessionId: string) {
       shippingLabel: true,
       expiresAt: true,
       createdAt: true,
+      payment: {
+        select: {
+          status: true,
+          transactionId: true,
+          refund: { select: { status: true } },
+        },
+      },
       items: {
         select: {
           productName: true,
