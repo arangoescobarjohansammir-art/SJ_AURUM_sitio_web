@@ -53,6 +53,22 @@ export function checkoutUrl(reference: string, total: number, expiresAt: Date) {
   }).toString();
   return url.href;
 }
+export function checkoutWidget(
+  reference: string,
+  total: number,
+  expiresAt: Date,
+) {
+  const url = new URL(checkoutUrl(reference, total, expiresAt));
+  return {
+    publicKey: url.searchParams.get("public-key")!,
+    currency: "COP" as const,
+    amountInCents: toPaymentCents(total),
+    reference,
+    signature: { integrity: url.searchParams.get("signature:integrity")! },
+    expirationTime: expiresAt.toISOString(),
+    bootstrapTransport: "postmessage" as const,
+  };
+}
 export const transactionSchema = z.object({
   id: z.string().regex(/^[a-zA-Z0-9_-]{1,100}$/),
   reference: z.string().max(200),

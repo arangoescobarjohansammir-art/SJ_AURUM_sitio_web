@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import {
   checkoutUrl,
+  checkoutWidget,
   verifyEvent,
   paymentConfig,
 } from "../src/modules/payments/wompi";
@@ -28,6 +29,14 @@ test("checkout signs amount, currency, expiration and reference without exposing
   );
   assert.ok(!url.href.includes("prv_test"));
   assert.ok(!url.href.includes("test_integrity"));
+  const widget = checkoutWidget("example", 1234, expiration);
+  assert.equal(
+    widget.signature.integrity,
+    url.searchParams.get("signature:integrity"),
+  );
+  assert.equal(widget.bootstrapTransport, "postmessage");
+  assert.equal(widget.amountInCents, 123400);
+  assert.ok(!("redirectUrl" in widget));
 });
 test("dynamic event signature, tampering and production rejection", () => {
   const transaction = {

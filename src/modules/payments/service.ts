@@ -6,6 +6,7 @@ import { transaction, CommerceError, release } from "../commerce/service";
 import { adminTransaction } from "../admin/service";
 import {
   checkoutUrl,
+  checkoutWidget,
   fetchTransaction,
   paymentConfig,
   verifyEvent,
@@ -44,6 +45,7 @@ export async function startPayment(sessionId: string, orderId: string) {
       }));
     return {
       url: checkoutUrl(payment.reference, order.total, order.expiresAt),
+      widget: checkoutWidget(payment.reference, order.total, order.expiresAt),
     };
   });
 }

@@ -7,6 +7,8 @@
     "effect": "3.22.1"
   },
   "scripts": {
+    "webhooks:local": "tsx scripts/webhook-relay.ts",
+    "webhooks:https": "ngrok http http://127.0.0.1:3001 --inspect=false",
     "test:payments": "tsx scripts/payments-integration.ts",
     "test:payments-http": "tsx scripts/payments-http.ts",
     "payments:reconcile": "tsx scripts/reconcile-payments.ts",

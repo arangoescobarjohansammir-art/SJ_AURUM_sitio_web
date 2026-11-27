@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Script from "next/script";
+import type { WidgetOptions } from "@/modules/payments/widget-types";
 import { api } from "@/lib/api-client";
 import { formatCOP } from "@/lib/money";
 import { useShop } from "@/components/shop-provider";
@@ -45,6 +47,7 @@ export default function Page() {
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [paymentsEnabled, setPaymentsEnabled] = useState(false),
+    [widgetReady, setWidgetReady] = useState(false),
     lock = useRef(false);
   async function load() {
     const result = await api<{ orders: Order[]; paymentsEnabled: boolean }>(
@@ -90,12 +93,33 @@ export default function Page() {
         await load();
         await refresh();
       } else {
-        const result = await api<{ url: string }>(
+        if (!window.WidgetCheckout)
+          throw Error(
+            "No se pudo cargar Wompi. Recarga la página o revisa tu conexión.",
+          );
+        const result = await api<{ widget: WidgetOptions }>(
           "/api/orders/" + encodeURIComponent(order.id) + "/payment",
           "POST",
           {},
         );
-        window.location.assign(result.url);
+        const checkout = new window.WidgetCheckout(result.widget);
+        checkout.open((result) => {
+          const id = result.transaction?.id;
+          if (!id) return;
+          void api("/api/payments/sync", "POST", { id })
+            .then(async () => {
+              await load();
+              await refresh();
+            })
+            .catch((e) =>
+              setError(
+                e instanceof Error
+                  ? e.message
+                  : "No pudimos confirmar el pago.",
+              ),
+            );
+        });
+        await load();
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "No pudimos consultar Wompi.");
@@ -106,6 +130,17 @@ export default function Page() {
   }
   return (
     <main id="contenido" className="container page">
+      {paymentsEnabled && (
+        <Script
+          src="https://checkout.wompi.co/widget.js"
+          onReady={() => setWidgetReady(true)}
+          onError={() =>
+            setError(
+              "No se pudo cargar Wompi. Revisa tu conexión y recarga la página.",
+            )
+          }
+        />
+      )}
       <p className="eyebrow">Tu experiencia AURUM</p>
       <h1>Pedidos de prueba</h1>
       <p className="notice">
@@ -175,10 +210,12 @@ export default function Page() {
                   (!o.payment || o.payment.status === "CREATED") && (
                     <button
                       className="button"
-                      disabled={busy}
+                      disabled={busy || !widgetReady}
                       onClick={() => void pay(o)}
                     >
-                      Probar pago con Wompi
+                      {widgetReady
+                        ? "Probar pago con Wompi"
+                        : "Cargando Wompi…"}
                     </button>
                   )}
                 <button
