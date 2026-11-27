@@ -8,7 +8,7 @@ const db = getDb();
 try {
   await db.$transaction(async (tx) => {
     for (const product of products) {
-      const { variants, ...data } = product;
+      const { variants, collections, ...data } = product;
       await tx.product.upsert({
         where: { id: product.id },
         create: { ...data, active: true },
@@ -36,6 +36,23 @@ try {
         });
       }
     }
+    await tx.collection.upsert({
+      where: { slug: "clasicos-ejemplo" },
+      update: {},
+      create: {
+        name: "Clásicos de ejemplo",
+        slug: "clasicos-ejemplo",
+        description:
+          "Una selección ilustrativa de cadenas y pulseras para combinar cada día.",
+        active: true,
+        products: {
+          connect: [
+            { id: "demo-cadena-cubana" },
+            { id: "demo-pulsera-veneciana" },
+          ],
+        },
+      },
+    });
     await tx.coupon.upsert({
       where: { code: "EJEMPLO10" },
       update: {},

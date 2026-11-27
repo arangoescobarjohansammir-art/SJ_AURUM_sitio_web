@@ -1,6 +1,8 @@
 "use client";
-import { useState } from "react";
-import Image from "next/image";
+import { useEffect, useState } from "react";
+import { ImagePicker } from "./media-picker";
+import { api } from "@/lib/api-client";
+import type { CollectionRecord } from "@/modules/admin/catalog-validation";
 import {
   images,
   type AdminProduct,
@@ -30,22 +32,39 @@ export function ProductForm({
   busy: boolean;
   onSave: (data: unknown) => Promise<void>;
 }) {
+  const [photoBusy, setPhotoBusy] = useState(false);
   const [form, setForm] = useState<ProductFields>(product ?? blank),
     [variant, setVariant] = useState(initialVariant),
     [reason, setReason] = useState("");
+  const [collectionIds, setCollectionIds] = useState(
+      product?.collections?.map((c) => c.id) ?? [],
+    ),
+    [collections, setCollections] = useState<CollectionRecord[]>([]),
+    [collectionError, setCollectionError] = useState("");
+  useEffect(() => {
+    void api<{ collections: CollectionRecord[] }>("/api/admin/collections")
+      .then((d) => setCollections(d.collections))
+      .catch((e) => setCollectionError(e.message));
+  }, []);
   return (
     <form
       className="checkout-form admin-form"
       onSubmit={(e) => {
         e.preventDefault();
+        if (photoBusy) return;
         void onSave(
           product
-            ? { ...form, expectedVersion: product.version, reason }
-            : { product: form, variant, reason },
+            ? {
+                ...form,
+                collectionIds,
+                expectedVersion: product.version,
+                reason,
+              }
+            : { product: { ...form, collectionIds }, variant, reason },
         );
       }}
     >
-      <fieldset disabled={busy}>
+      <fieldset disabled={busy || photoBusy}>
         <legend>{product ? "Ficha del producto" : "Nuevo producto"}</legend>
         <label>
           Nombre
@@ -95,54 +114,44 @@ export function ProductForm({
             onChange={(e) => setForm({ ...form, description: e.target.value })}
           />
         </label>
-        <label>
-          Imagen principal
-          <select
-            value={form.image}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                image: e.target.value,
-                gallery: [...new Set([...form.gallery, e.target.value])],
-              })
-            }
-          >
-            {images.map((image, i) => (
-              <option value={image} key={image}>
-                Referencia {i + 1}
-              </option>
-            ))}
-          </select>
-        </label>
-        <Image
-          src={form.image}
-          width={120}
-          height={120}
-          alt="Imagen seleccionada de referencia"
-          className="admin-thumbnail"
+        <ImagePicker
+          onBusyChange={setPhotoBusy}
+          image={form.image}
+          gallery={form.gallery}
+          disabled={busy || photoBusy}
+          onChange={(image, gallery) =>
+            setForm((current) => ({ ...current, image, gallery }))
+          }
         />
         <fieldset>
-          <legend>Galería de referencias</legend>
-          <div className="admin-gallery">
-            {images.map((image, i) => (
-              <label key={image} className="checkbox">
-                <input
-                  type="checkbox"
-                  checked={form.gallery.includes(image)}
-                  disabled={image === form.image}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      gallery: e.target.checked
-                        ? [...form.gallery, image]
-                        : form.gallery.filter((x) => x !== image),
-                    })
-                  }
-                />
-                Referencia {i + 1}
-              </label>
-            ))}
-          </div>
+          <legend>Colecciones del producto · máximo 10</legend>
+          {collectionError && <p role="alert">{collectionError}</p>}
+          {collections.map((c) => (
+            <label className="checkbox" key={c.id}>
+              <input
+                type="checkbox"
+                checked={collectionIds.includes(c.id)}
+                disabled={
+                  !collectionIds.includes(c.id) && collectionIds.length >= 10
+                }
+                onChange={(e) =>
+                  setCollectionIds((v) =>
+                    e.target.checked
+                      ? [...v, c.id]
+                      : v.filter((id) => id !== c.id),
+                  )
+                }
+              />
+              {c.name}
+              {!c.active ? " (oculta)" : ""}
+            </label>
+          ))}
+          {!collections.length && !collectionError && (
+            <p>
+              Crea colecciones en Fotografías y colecciones para agrupar tus
+              productos.
+            </p>
+          )}
         </fieldset>
         <label className="checkbox">
           <input
@@ -154,7 +163,7 @@ export function ProductForm({
         </label>
       </fieldset>
       {!product && (
-        <fieldset disabled={busy}>
+        <fieldset disabled={busy || photoBusy}>
           <legend>Primera variante · stock inicial cero</legend>
           <label>
             SKU
@@ -204,12 +213,12 @@ export function ProductForm({
           minLength={8}
           maxLength={300}
           rows={2}
-          disabled={busy}
+          disabled={busy || photoBusy}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
         />
       </label>
-      <button className="button" disabled={busy}>
+      <button className="button" disabled={busy || photoBusy}>
         {busy
           ? "Guardando…"
           : product

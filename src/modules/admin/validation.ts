@@ -9,6 +9,14 @@ export const images = [
   "/images/product-6.jpg",
   "/images/detail.jpg",
 ] as const;
+const imagePath = z.union([
+  z.enum(images),
+  z
+    .string()
+    .regex(
+      /^\/media\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    ),
+]);
 const version = z.number().int().min(0);
 const reason = z
   .string()
@@ -24,8 +32,9 @@ export const productSchema = z.object({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   category: z.enum(categories),
   description: z.string().trim().min(12).max(2000),
-  image: z.enum(images),
-  gallery: z.array(z.enum(images)).min(1).max(7),
+  image: imagePath,
+  gallery: z.array(imagePath).min(1).max(7),
+  collectionIds: z.array(z.uuid()).max(10).default([]),
   active: z.boolean(),
 });
 export const variantSchema = z.object({
@@ -73,6 +82,7 @@ export type AdminVariant = {
   version: number;
 };
 export type AdminProduct = {
+  collections: { id: string; name: string; slug: string; active: boolean }[];
   id: string;
   name: string;
   slug: string;

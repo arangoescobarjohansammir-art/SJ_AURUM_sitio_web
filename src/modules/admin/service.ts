@@ -55,6 +55,7 @@ const audit = (
     data: { actorId, action, entityId, before, after, reason },
   });
 const productSnapshot = (p: {
+  collections?: { id: string }[];
   name: string;
   slug: string;
   category: string;
@@ -64,6 +65,7 @@ const productSnapshot = (p: {
   active: boolean;
   version: number;
 }) => ({
+  collections: p.collections?.map((c) => c.id).sort() ?? [],
   name: p.name,
   slug: p.slug,
   category: p.category,
@@ -97,7 +99,10 @@ const conflict = () =>
     409,
   );
 async function product(tx: Tx, id: string) {
-  const p = await tx.product.findUnique({ where: { id } });
+  const p = await tx.product.findUnique({
+    where: { id },
+    include: { collections: true },
+  });
   if (!p || !p.demo)
     throw new CommerceError(
       "NOT_FOUND",
@@ -156,7 +161,7 @@ export async function listProducts(token: string | undefined, input: unknown) {
     const total = await tx.product.count({ where });
     const products = await tx.product.findMany({
       where,
-      include: { variants: { orderBy: { id: "asc" } } },
+      include: { collections: true, variants: { orderBy: { id: "asc" } } },
       orderBy: [{ createdAt: "desc" }, { id: "asc" }],
       skip: (page - 1) * 20,
       take: 20,
@@ -169,7 +174,7 @@ export async function productDetail(token: string | undefined, id: string) {
     await product(tx, id);
     const result = await tx.product.findUniqueOrThrow({
       where: { id },
-      include: { variants: { orderBy: { id: "asc" } } },
+      include: { collections: true, variants: { orderBy: { id: "asc" } } },
     });
     const entities = [id, ...result.variants.map((v) => v.id)];
     const audits = await tx.adminAudit.findMany({
@@ -196,6 +201,8 @@ export async function createProduct(token: string | undefined, input: unknown) {
       const data = createProductSchema.parse(input),
         id = randomUUID(),
         variantId = randomUUID();
+      await validateReferences(tx, data.product);
+      const { collectionIds, ...fields } = data.product;
       if (data.product.active && !data.variant.active)
         throw new CommerceError(
           "NO_VARIANTS",
@@ -210,13 +217,16 @@ export async function createProduct(token: string | undefined, input: unknown) {
         );
       const created = await tx.product.create({
         data: {
-          ...data.product,
+          ...fields,
+          collections: {
+            connect: [...new Set(collectionIds)].map((id) => ({ id })),
+          },
           gallery: [...new Set(data.product.gallery)],
           id,
           demo: true,
           variants: { create: { ...data.variant, id: variantId, stock: 0 } },
         },
-        include: { variants: true },
+        include: { variants: true, collections: true },
       });
       await audit(
         tx,
@@ -251,6 +261,8 @@ export async function editProduct(
           editProductSchema.parse(input),
         before = await product(tx, id);
       if (before.version !== expectedVersion) throw conflict();
+      await validateReferences(tx, data);
+      const { collectionIds, ...fields } = data;
       if (!data.gallery.includes(data.image))
         throw new CommerceError(
           "VALIDATION",
@@ -266,16 +278,22 @@ export async function editProduct(
           "Activa una variante antes de publicar el producto.",
           409,
         );
-      const updated = await tx.product.updateMany({
+      const updated = await tx.product.update({
         where: { id, version: expectedVersion },
         data: {
-          ...data,
+          ...fields,
+          collections: {
+            set: [...new Set(collectionIds)].map((id) => ({ id })),
+          },
           gallery: [...new Set(data.gallery)],
           version: { increment: 1 },
         },
       });
-      if (!updated.count) throw conflict();
-      const after = await tx.product.findUniqueOrThrow({ where: { id } });
+
+      const after = await tx.product.findUniqueOrThrow({
+        where: { id },
+        include: { collections: true },
+      });
       await audit(
         tx,
         actorId,
@@ -408,4 +426,35 @@ export async function adjustStock(
     );
     return { ok: true };
   });
+}
+
+async function validateReferences(
+  tx: Tx,
+  data: { image: string; gallery: string[]; collectionIds: string[] },
+) {
+  const ids = [
+    ...new Set(
+      [data.image, ...data.gallery]
+        .filter((p) => p.startsWith("/media/"))
+        .map((p) => p.slice(7)),
+    ),
+  ];
+  if (
+    (await tx.mediaAsset.count({ where: { id: { in: ids } } })) !== ids.length
+  )
+    throw new CommerceError(
+      "INVALID_MEDIA",
+      "Una fotografía no existe en la biblioteca.",
+      400,
+    );
+  const collections = [...new Set(data.collectionIds)];
+  if (
+    (await tx.collection.count({ where: { id: { in: collections } } })) !==
+    collections.length
+  )
+    throw new CommerceError(
+      "INVALID_COLLECTION",
+      "Una colección seleccionada ya no existe.",
+      400,
+    );
 }

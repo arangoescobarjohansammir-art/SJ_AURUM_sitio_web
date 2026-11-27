@@ -62,7 +62,13 @@ async function lockSession(tx: Tx, id: string) {
 export async function catalog() {
   const records = await getDb().product.findMany({
     where: { active: true, demo: true },
-    include: { variants: { where: { active: true }, orderBy: { id: "asc" } } },
+    include: {
+      collections: {
+        where: { active: true },
+        select: { id: true, name: true, slug: true, description: true },
+      },
+      variants: { where: { active: true }, orderBy: { id: "asc" } },
+    },
     orderBy: { createdAt: "asc" },
   });
   return records
@@ -76,6 +82,7 @@ export async function catalog() {
       image: p.image,
       gallery: p.gallery,
       demo: p.demo,
+      collections: p.collections,
       variants: p.variants.map((v) => ({
         id: v.id,
         label: v.label,

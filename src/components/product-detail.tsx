@@ -7,7 +7,7 @@ import { useShop } from "./shop-provider";
 import { Icon } from "./icon";
 export function ProductDetail({ product }: { product: Product }) {
   const [variantId, setVariantId] = useState(product.variants[0].id),
-    [photo, setPhoto] = useState(product.gallery[0]);
+    [photo, setPhoto] = useState(product.image);
   const variant = product.variants.find((v) => v.id === variantId)!;
   const { add, ready, busy, favorites, toggleFavorite } = useShop();
   return (

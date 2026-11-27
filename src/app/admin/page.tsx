@@ -32,6 +32,7 @@ export default async function Page() {
           Catálogo e inventario
         </Link>
         <Link href="/admin/pedidos">Pedidos</Link>
+        <Link href="/admin/biblioteca">Fotografías y colecciones</Link>
       </nav>
       <p className="notice">
         Entorno de desarrollo. Los cambios afectan al catálogo de ejemplo. Cada

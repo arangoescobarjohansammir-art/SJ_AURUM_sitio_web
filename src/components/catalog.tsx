@@ -5,12 +5,22 @@ import { ProductCard } from "./product-card";
 import { useShop } from "./shop-provider";
 export function Catalog({
   initialCategory = "",
+  initialCollection = "",
+  collections = [],
 }: {
   initialCategory?: string;
+  initialCollection?: string;
+  collections?: {
+    id: string;
+    name: string;
+    slug: string;
+    description: string;
+  }[];
 }) {
   const { products } = useShop();
   const [query, setQuery] = useState(""),
     [category, setCategory] = useState(initialCategory),
+    [collection, setCollection] = useState(initialCollection),
     [maxPrice, setMaxPrice] = useState(""),
     [sort, setSort] = useState("selection"),
     [available, setAvailable] = useState(false),
@@ -23,11 +33,16 @@ export function Catalog({
       sort,
       availableOnly: available,
     },
-    products,
+    collection
+      ? products.filter((p) =>
+          p.collections?.some((c) => c.slug === collection),
+        )
+      : products,
   );
   function reset() {
     setQuery("");
     setCategory("");
+    setCollection("");
     setMaxPrice("");
     setSort("selection");
     setAvailable(false);
@@ -65,6 +80,29 @@ export function Catalog({
           </select>
         </label>
         <label>
+          Colección
+          <select
+            value={collection}
+            onChange={(e) => {
+              setCollection(e.target.value);
+              setLimit(4);
+            }}
+          >
+            <option value="">Todas las colecciones</option>
+            {initialCollection &&
+              !collections.some((c) => c.slug === initialCollection) && (
+                <option value={initialCollection}>
+                  Colección no disponible
+                </option>
+              )}
+            {collections.map((c) => (
+              <option key={c.id} value={c.slug}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </label>{" "}
+        <label>
           Precio máximo
           <select
             value={maxPrice}
@@ -85,6 +123,12 @@ export function Catalog({
           </select>
         </label>
       </div>
+      {collection &&
+        collections.find((c) => c.slug === collection)?.description && (
+          <p className="page-intro">
+            {collections.find((c) => c.slug === collection)?.description}
+          </p>
+        )}
       <div className="catalog-summary">
         <p role="status">
           {filtered.length} {filtered.length === 1 ? "pieza" : "piezas"} de

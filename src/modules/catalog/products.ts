@@ -16,6 +16,12 @@ export type Variant = {
   price: number;
 };
 export type Product = {
+  collections?: {
+    id: string;
+    name: string;
+    slug: string;
+    description: string;
+  }[];
   id: string;
   slug: string;
   name: string;

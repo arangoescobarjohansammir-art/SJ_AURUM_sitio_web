@@ -36,6 +36,8 @@ El seed solo crea ejemplos ausentes; preserva cambios existentes de precios e in
 - npm run test:admin-http (servidor local activo).
 - npm run test:admin-orders (PostgreSQL local activo).
 - npm run test:admin-orders-http (servidor local activo).
+- npm run test:catalog-media (PostgreSQL local activo).
+- npm run test:catalog-media-http (servidor local activo).
 - npm audit
 
 Las pruebas de integración agregan registros aislados por identificador, sin borrar datos anteriores. No apuntarlas a producción.
@@ -66,6 +68,8 @@ Abrir /cuenta para registrar datos ficticios. Si .env ya existía, añadir LOCAL
 
 ## Administración
 
-Panel /admin con rol ADMIN verificado: productos, variantes, precios, imágenes locales, visibilidad, ajustes de stock y auditoría. Preparación explícita de la cuenta y comandos de rol en docs/ADMINISTRACION.md. No hay administrador ni contraseña predeterminados. El servidor de desarrollo usa Webpack para evitar recargas continuas observadas con Turbopack en este entorno Windows.
+Panel /admin con rol ADMIN verificado: productos, variantes, precios, fotografías cargadas, colecciones, visibilidad, ajustes de stock y auditoría. Preparación explícita de la cuenta y comandos de rol en docs/ADMINISTRACION.md. No hay administrador ni contraseña predeterminados. El servidor de desarrollo usa Webpack para evitar recargas continuas observadas con Turbopack en este entorno Windows.
 
 El panel de pedidos está en /admin/pedidos: búsqueda, filtros, detalle privado, notas de seguimiento, cancelación de reservas e historial. Uso y límites en docs/PEDIDOS-ADMIN.md.
+
+Biblioteca de fotografías y colecciones en /admin/biblioteca. Permite subir JPG/PNG/WebP, elegir portada, ordenar galería y agrupar productos. Los bytes se guardan en PostgreSQL; ver docs/CATALOGO-MEDIA.md para uso, límites y respaldo. El catálogo definitivo sigue pendiente de tus datos reales.

@@ -4,7 +4,7 @@
 
 Panel /admin para productos de ejemplo, variantes, precios COP, visibilidad, imágenes locales y ajustes de inventario. Búsqueda por nombre, enlace o SKU y paginación de 20 productos. Una ficha muestra sus últimos 50 cambios con autor, motivo y valores anteriores/nuevos.
 
-No administra todavía clientes, cupones, envíos, marketing ni configuración general. La gestión de pedidos de ejemplo está disponible en /admin/pedidos; ver PEDIDOS-ADMIN.md. No carga archivos a almacenamiento externo. Las imágenes se seleccionan de las siete referencias locales ya incluidas. Los productos siguen siendo demo; el panel no habilita ventas, pagos ni datos comerciales reales.
+No administra todavía clientes, cupones, envíos, marketing ni configuración general. La gestión de pedidos de ejemplo está disponible en /admin/pedidos; ver PEDIDOS-ADMIN.md. No carga archivos a almacenamiento externo. Ahora se pueden cargar fotografías a PostgreSQL y seleccionar las referencias originales; ver CATALOGO-MEDIA.md. Los productos siguen siendo demo; el panel no habilita ventas ni pagos. El usuario confirmó mantener los datos de ejemplo.
 
 ## Preparación y acceso
 
@@ -52,4 +52,4 @@ Cada mutación exitosa guarda un AdminAudit en la misma transacción. El ajuste 
 
 npm run dev usa Webpack, soportado por Next.js. Turbopack presentó recargas continuas en este entorno Windows tras operaciones locales; cambiar la ruta de la bandeja no bastó para resolverlo de forma estable. Webpack se verificó durante el recorrido completo. La compilación de producción mantiene el comando next build.
 
-Antes de producción faltan MFA/controles de administración, revisión de seguridad, correo real, almacenamiento de imágenes, retención, respaldo y restauración. La tienda continúa sin despliegue comercial.
+Antes de producción faltan MFA/controles de administración, revisión de seguridad, correo real, almacenamiento de imágenes de producción, retención, respaldo y restauración. La tienda continúa sin despliegue comercial.

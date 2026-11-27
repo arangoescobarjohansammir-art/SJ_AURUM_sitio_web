@@ -29,7 +29,9 @@
     "test:admin": "tsx scripts/admin-integration.ts",
     "test:admin-http": "tsx scripts/admin-http.ts",
     "test:admin-orders": "tsx scripts/admin-orders-integration.ts",
-    "test:admin-orders-http": "tsx scripts/admin-orders-http.ts"
+    "test:admin-orders-http": "tsx scripts/admin-orders-http.ts",
+    "test:catalog-media": "tsx scripts/catalog-media-integration.ts",
+    "test:catalog-media-http": "tsx scripts/catalog-media-http.ts"
   },
   "dependencies": {
     "@fontsource/playfair-display": "5.3.0",
@@ -42,6 +44,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "server-only": "0.0.1",
+    "sharp": "0.35.5",
     "zod": "^4.1.0"
   },
   "devDependencies": {

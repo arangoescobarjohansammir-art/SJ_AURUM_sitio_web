@@ -28,12 +28,12 @@ Los vencimientos se procesan bajo demanda o con reservations:expire; falta progr
 
 ## Pendiente
 
-1. Completar fase 2: colecciones administrables, novedades/popularidad respaldadas por datos y newsletter con consentimiento.
+1. Completar fase 2: novedades/popularidad respaldadas por datos y newsletter con consentimiento.
 2. Completar fase 3 con configuración comercial real y futura transición a pagos. La reserva de demostración no sustituye una venta.
 3. Completar fase 4 para producción: correo transaccional, endurecimiento y revisión de autenticación, controles administrativos, consentimiento/retención e integración de direcciones con checkout.
 4. Fase 5: proveedor de pagos confirmado, webhooks verificados, conciliación, reembolsos, correo y transporte.
 5. Fase 6: certificados, condiciones versionadas y fidelización.
-6. Completar fase 7: gestión de imágenes externas, clientes, cupones, marketing y configuración; gestión logística/comercial de pedidos cuando existan pagos. Catálogo, variantes y ajustes de inventario ya disponen de panel protegido.
+6. Completar fase 7: almacenamiento de imágenes de producción, clientes, cupones, marketing y configuración; gestión logística/comercial de pedidos cuando existan pagos. Catálogo, variantes y ajustes de inventario ya disponen de panel protegido.
 7. Fase 8: ampliar pruebas de seguridad, accesibilidad, rendimiento y dispositivos.
 8. Fase 9: hosting, dominio, HTTPS, datos/políticas aprobados, copias/restauración, monitoreo y compra validada.
 
@@ -59,3 +59,7 @@ Panel protegido, creación/edición de productos y variantes, precio COP, galer�
 ## Incremento de pedidos administrativos
 
 Listado paginado, búsqueda por número/nombre/correo, filtros por reserva y seguimiento, detalle privado con importes históricos, notas internas auditadas y cancelación transaccional. Siete grupos de pruebas PostgreSQL y recorrido HTTP aprobados; revisión visual de notas persistidas, cancelación y diseño móvil. Detalles en PEDIDOS-ADMIN.md. No hay cobros, despachos ni correos reales.
+
+## Incremento de fotografías y colecciones
+
+Biblioteca persistente en PostgreSQL, carga JPG/PNG/WebP con validación y optimización, portada, galería ordenable, colecciones múltiples editables y filtro público. Se conserva modo demo por decisión del usuario; datos definitivos pendientes. Siete grupos de integración nuevos y recorrido HTTP; regresión de inventario/comercio y revisión visual móvil/escritorio. Ver CATALOGO-MEDIA.md.

@@ -443,7 +443,7 @@ a[aria-current="page"] {
 }
 .catalog-controls {
   display: grid;
-  grid-template-columns: 2fr 1.3fr 1fr 1fr;
+  grid-template-columns: 2fr 1.3fr 1.3fr 1fr 1fr;
   gap: 1rem;
   margin-top: 2rem;
 }
@@ -1194,4 +1194,55 @@ details p {
   .admin-order-filters {
     grid-template-columns: 1fr;
   }
+}
+
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.media-tile {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.media-tile img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  background: #fff;
+}
+.media-tile p {
+  margin: 12px 0;
+}
+.media-tile .admin-toolbar {
+  align-items: stretch;
+  gap: 10px;
+}
+.media-tile button {
+  font: inherit;
+  cursor: pointer;
+}
+.media-upload {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+}
+.media-search {
+  display: grid;
+  gap: 8px;
+  max-width: 600px;
+}
+.media-search input {
+  padding: 12px;
+  font: inherit;
+}
+.media-tile button:disabled {
+  opacity: 0.55;
+  cursor: default;
 }

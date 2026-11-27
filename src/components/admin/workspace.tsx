@@ -27,6 +27,7 @@ const fieldLabels: Record<string, string> = {
   description: "Descripción",
   image: "Imagen",
   gallery: "Galería",
+  collections: "Colecciones (identificadores)",
   active: "Activo",
   sku: "SKU",
   label: "Variante",

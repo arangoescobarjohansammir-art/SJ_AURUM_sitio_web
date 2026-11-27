@@ -28,6 +28,7 @@ export default async function Page() {
         <Link href="/admin/pedidos" aria-current="page">
           Pedidos
         </Link>
+        <Link href="/admin/biblioteca">Fotografías y colecciones</Link>
       </nav>
       <p className="notice">
         Pedidos de ejemplo, sin pagos ni despachos. El seguimiento es interno y
