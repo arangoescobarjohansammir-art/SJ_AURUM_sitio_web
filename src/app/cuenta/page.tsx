@@ -153,6 +153,9 @@ export default function Page() {
                 recuperarlos al volver a entrar.
               </p>
               <div className="account-links">
+                {customer.role === "ADMIN" && customer.verifiedAt && (
+                  <Link href="/admin">Administrar catálogo e inventario</Link>
+                )}
                 <Link href="/bolsa">Ir a mi bolsa</Link>
                 <Link href="/pedidos">Consultar pedidos de prueba</Link>
                 <Link href="/favoritos">Ver favoritos de este navegador</Link>

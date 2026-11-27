@@ -1,4 +1,4 @@
-# Estado de desarrollo — cuentas y pedidos de prueba
+# Estado de desarrollo — administración de catálogo e inventario
 
 26 de noviembre de 2026, Colombia. Entrega incremental; no certifica el alcance final completo.
 
@@ -29,11 +29,11 @@ Los vencimientos se procesan bajo demanda o con reservations:expire; falta progr
 ## Pendiente
 
 1. Completar fase 2: colecciones administrables, novedades/popularidad respaldadas por datos y newsletter con consentimiento.
-2. Completar fase 3 con configuración comercial real, gestión de catálogo y futura transición a pagos. La reserva de demostración no sustituye una venta.
+2. Completar fase 3 con configuración comercial real y futura transición a pagos. La reserva de demostración no sustituye una venta.
 3. Completar fase 4 para producción: correo transaccional, endurecimiento y revisión de autenticación, controles administrativos, consentimiento/retención e integración de direcciones con checkout.
 4. Fase 5: proveedor de pagos confirmado, webhooks verificados, conciliación, reembolsos, correo y transporte.
 5. Fase 6: certificados, condiciones versionadas y fidelización.
-6. Fase 7: administración autorizada de productos, clientes, pedidos, inventario y configuración.
+6. Completar fase 7: gestión de imágenes externas, clientes, pedidos, cupones, marketing y configuración. Catálogo, variantes y ajustes de inventario ya disponen de panel protegido.
 7. Fase 8: ampliar pruebas de seguridad, accesibilidad, rendimiento y dispositivos.
 8. Fase 9: hosting, dominio, HTTPS, datos/políticas aprobados, copias/restauración, monitoreo y compra validada.
 
@@ -46,8 +46,12 @@ Los vencimientos se procesan bajo demanda o con reservations:expire; falta progr
 - src/app/checkout/ y src/app/pedidos/: experiencia de prueba.
 - scripts/: PostgreSQL local, integración, pruebas HTTP y liberación de vencidos.
 
-Identidad y cuentas de desarrollo implementadas; detalles y límites en CUENTAS.md. El siguiente bloque puede preparar administración de catálogo e inventario mientras se define el proveedor de pagos. La publicación comercial sigue pendiente.
+Identidad y cuentas de desarrollo implementadas; detalles y límites en CUENTAS.md. Panel de catálogo e inventario implementado; detalles en ADMINISTRACION.md. El siguiente bloque es gestión administrativa de pedidos, manteniendo los pagos cerrados hasta definir proveedor. La publicación comercial sigue pendiente.
 
 ## Incremento de cuentas
 
-Registro, acceso y logout; perfil editable; cinco direcciones privadas; roles protegidos; verificación y recuperación de un uso; sesiones revocadas tras recuperación; bolsa e historial asociados a cuenta con migración transaccional del visitante. Ocho grupos de integración de cuentas y recorrido HTTP aprobados. Navegador: registro, login, perfil, dirección persistida y logout, sin desbordamiento a 320 px. Se corrigió un bucle de recarga de Turbopack causado por detectar datos locales como dependencias. No hay envío real de correo ni cuenta comercial habilitada.
+Registro, acceso y logout; perfil editable; cinco direcciones privadas; roles protegidos; verificación y recuperación de un uso; sesiones revocadas tras recuperación; bolsa e historial asociados a cuenta con migración transaccional del visitante. Ocho grupos de integración de cuentas y recorrido HTTP aprobados. Navegador: registro, login, perfil, dirección persistida y logout, sin desbordamiento a 320 px. El ajuste inicial de la bandeja no eliminó de forma estable las recargas de Turbopack; esta entrega cambia el desarrollo a Webpack y valida el recorrido sin ese bucle. No hay envío real de correo ni cuenta comercial habilitada.
+
+## Incremento de administración
+
+Panel protegido, creación/edición de productos y variantes, precio COP, galería de referencias locales, publicación/ocultamiento y búsqueda paginada. Ajustes de stock con motivo, autor e historial; versiones para evitar sobrescrituras; protección de reservas y movimientos transaccionales. Nueve grupos de integración y recorrido HTTP de administración. Revisión visual completa en escritorio y móvil; pieza de prueba ocultada y rol de la cuenta ficticia revocado al terminar. No se ha designado un administrador personal ni habilitado comercio.

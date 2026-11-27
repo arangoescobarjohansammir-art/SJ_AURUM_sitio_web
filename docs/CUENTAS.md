@@ -4,7 +4,7 @@
 
 Registro, acceso, cierre de sesión, perfil (nombre), verificación de correo, recuperación de contraseña y direcciones privadas. La bolsa y el historial pasan a una sesión de comercio persistente de la cuenta al iniciar sesión. Las cuentas y entregas locales requieren APP_ENV=development; están cerradas fuera de ese entorno.
 
-No hay correos enviados a Internet, acceso social, MFA, cambio de correo, panel administrativo ni seguimiento de transportadora. Las direcciones guardadas todavía no se seleccionan desde el checkout de demostración. Los favoritos continúan ligados al navegador.
+No hay correos enviados a Internet, acceso social, MFA, cambio de correo ni seguimiento de transportadora. El panel de catálogo e inventario de desarrollo se documenta en ADMINISTRACION.md. Las direcciones guardadas todavía no se seleccionan desde el checkout de demostración. Los favoritos continúan ligados al navegador.
 
 ## Sesiones y autorización
 
