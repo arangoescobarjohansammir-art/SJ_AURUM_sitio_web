@@ -327,6 +327,7 @@ model MediaAsset {
 }
 
 model EnviaShipment {
+  provider String @default("envia")
   id String @id @default(uuid())
   orderId String @unique
   order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)

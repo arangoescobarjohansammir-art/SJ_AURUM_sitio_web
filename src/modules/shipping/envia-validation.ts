@@ -1,6 +1,13 @@
 import { z } from "zod";
+const details = {
+  email: z.email().max(60).optional(),
+  suburb: z.string().trim().min(2).max(30).optional(),
+  crossStreet: z.string().trim().min(2).max(35).optional(),
+  reference: z.string().trim().min(2).max(25).optional(),
+};
 const text = z.string().trim().min(1).max(100);
 export const locationSchema = z.object({
+  ...details,
   city: z.string().regex(/^\d{8}$/),
   state: z.string().regex(/^[A-Z0-9]{2,3}$/),
   postalCode: z.string().regex(/^\d{5,8}$/),
@@ -22,6 +29,7 @@ export const enviaQuoteSchema = z.object({
   acceptedSandbox: z.literal(true),
 });
 export const enviaRateSchema = z.object({
+  idRate: z.number().int().positive().optional(),
   carrier: text,
   service: text,
   totalPrice: z.number().finite().nonnegative().max(10000000),
@@ -30,6 +38,7 @@ export const enviaRateSchema = z.object({
 });
 export type EnviaRate = z.infer<typeof enviaRateSchema>;
 export type EnviaView = {
+  provider: string;
   state: string;
   quoteKey: string;
   rates: EnviaRate[];

@@ -45,7 +45,8 @@
     "test:mail": "tsx scripts/mail-integration.ts",
     "test:mail-auth": "node --conditions=react-server --import tsx scripts/mail-auth-integration.ts",
     "mail:status": "tsx scripts/mail-status.ts",
-    "mail:watch": "tsx scripts/mail-worker.ts --watch"
+    "mail:watch": "tsx scripts/mail-worker.ts --watch",
+    "test:envioclick": "tsx scripts/envia-integration.ts --envioclick"
   },
   "dependencies": {
     "@fontsource/playfair-display": "5.3.0",

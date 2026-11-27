@@ -61,7 +61,11 @@ export type Rate = {
   active: boolean;
 };
 export type ShippingView = {
-  enviaShipment: { providerStatus: string; checkedAt: string | null } | null;
+  enviaShipment: {
+    provider: string;
+    providerStatus: string;
+    checkedAt: string | null;
+  } | null;
   shippingCarrier: string;
   shippingEstimate: string;
   shippingStatus: keyof typeof shippingStates;

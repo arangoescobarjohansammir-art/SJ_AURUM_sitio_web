@@ -1,5 +1,7 @@
 export const shippingSelection = {
-  enviaShipment: { select: { providerStatus: true, checkedAt: true } },
+  enviaShipment: {
+    select: { provider: true, providerStatus: true, checkedAt: true },
+  },
   shippingCarrier: true,
   shippingEstimate: true,
   shippingStatus: true,

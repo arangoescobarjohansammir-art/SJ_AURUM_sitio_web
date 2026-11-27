@@ -1,3 +1,12 @@
+import {
+  activeProvider,
+  providerName,
+  providerConfig,
+  quoteProvider,
+  generateProvider,
+  providerLabelUrl,
+} from "./provider";
+import { clickPayloadSchema } from "./envioclick";
 import { queueOrderMail } from "../mail/outbox";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
@@ -7,14 +16,9 @@ import { adminTransaction } from "../admin/service";
 import { CommerceError, transaction } from "../commerce/service";
 import { recipientSchema } from "../commerce/validation";
 import { enviaQuoteSchema, enviaRateSchema } from "./envia-validation";
-import {
-  enviaConfig,
-  enviaRequest,
-  parseLabel,
-  parseRates,
-  safeLabelUrl,
-} from "./envia";
+import { enviaRequest } from "./envia";
 export const enviaSelection = {
+  provider: true,
   state: true,
   quoteKey: true,
   rates: true,
@@ -63,11 +67,12 @@ export async function enviaStatus(token: string | undefined, id: string) {
       throw new CommerceError("NOT_FOUND", "Pedido no encontrado.", 404);
     let configured = false;
     try {
-      enviaConfig();
+      providerConfig(activeProvider());
       configured = true;
     } catch {}
     return {
       configured,
+      provider: activeProvider(),
       shipment: await tx.enviaShipment.findUnique({
         where: { orderId: id },
         select: enviaSelection,
@@ -81,7 +86,8 @@ export async function quoteEnvia(
   input: unknown,
 ) {
   const data = enviaQuoteSchema.parse(input);
-  enviaConfig();
+  const provider = activeProvider();
+  providerConfig(provider);
   const prepared = await adminTransaction(token, async (tx) => {
     const order = await eligible(tx, id, data.expectedVersion);
     if (order.enviaShipment && order.enviaShipment.state !== "QUOTED")
@@ -98,6 +104,61 @@ export async function quoteEnvia(
         "Este pedido ya tiene seguimiento de despacho.",
       );
     const r = recipientSchema.parse(order.recipient);
+    if (provider === "envioclick") {
+      const contact = (
+        name: string,
+        phone: string,
+        street: string,
+        email: string | undefined,
+        location: typeof data.destination,
+      ) => {
+        const [firstName, ...rest] = name.trim().split(/\s+/);
+        return {
+          company: "SJ AURUM Pruebas",
+          firstName,
+          lastName: rest.join(" "),
+          phone: phone.replace(/^\+57/, ""),
+          address: street,
+          email,
+          suburb: location.suburb,
+          crossStreet: location.crossStreet,
+          reference: location.reference,
+          daneCode: location.city,
+        };
+      };
+      const parsed = clickPayloadSchema.safeParse({
+        origin: contact(
+          data.origin.name,
+          data.origin.phone,
+          data.origin.street,
+          data.origin.email,
+          data.origin,
+        ),
+        destination: contact(
+          r.name,
+          r.phone,
+          r.address,
+          r.email,
+          data.destination,
+        ),
+        packages: [
+          {
+            weight: data.weight,
+            length: data.length,
+            width: data.width,
+            height: data.height,
+          },
+        ],
+        description: "Bisuteria de prueba",
+        contentValue: order.subtotal - order.discount,
+      });
+      if (!parsed.success)
+        throw new CommerceError(
+          "ENVIOCLICK_DATA",
+          "Revisa los datos de Envíoclick: nombre y apellidos de 2 a 14 caracteres cada uno, dirección de 8 a 50, celular de 10 dígitos, correo y referencias completos; peso mínimo 1 kg y valor máximo $3.000.000.",
+        );
+      return { version: order.version, payload: parsed.data };
+    }
     return {
       version: order.version,
       payload: {
@@ -132,7 +193,7 @@ export async function quoteEnvia(
       },
     };
   });
-  const rates = parseRates(await enviaRequest("/ship/rate/", prepared.payload));
+  const rates = await quoteProvider(provider, prepared.payload);
   return adminTransaction(token, async (tx, actorId) => {
     await eligible(tx, id, prepared.version);
     const existing = await tx.enviaShipment.findUnique({
@@ -141,6 +202,7 @@ export async function quoteEnvia(
     if (existing && existing.state !== "QUOTED")
       throw new CommerceError("ENVIA_EXISTS", "Ya se solicitó una guía.");
     const values = {
+      provider,
       payload: prepared.payload,
       rates,
       quoteKey: randomUUID(),
@@ -160,7 +222,7 @@ export async function quoteEnvia(
         action: "ENVIA_QUOTE",
         before: {},
         after: { quoteKey: result.quoteKey, services: rates.length },
-        reason: "Cotización Envia Sandbox",
+        reason: "Cotización " + providerName(provider),
       },
     });
     return result;
@@ -178,16 +240,17 @@ export async function generateEnvia(
       acceptedSandbox: z.literal(true),
     })
     .parse(input);
-  enviaConfig();
+  const provider = activeProvider();
+  providerConfig(provider);
   const claimed = await adminTransaction(token, async (tx, actorId) => {
     const order = await eligible(tx, id);
     const row = order.enviaShipment;
-    if (!row || row.quoteKey !== data.quoteKey)
+    if (!row || row.quoteKey !== data.quoteKey || row.provider !== provider)
       throw new CommerceError("QUOTE_CHANGED", "Vuelve a cotizar el envío.");
     if (row.state !== "QUOTED")
       throw new CommerceError(
         "ENVIA_EXISTS",
-        "La guía ya fue solicitada. No se repetirá; consulta Envia Sandbox.",
+        "La guía ya fue solicitada. No se repetirá; consulta el proveedor.",
       );
     if (row.expiresAt <= new Date() || row.orderVersion !== order.version)
       throw new CommerceError(
@@ -241,8 +304,11 @@ export async function generateEnvia(
     };
   });
   try {
-    const label = parseLabel(
-      await enviaRequest("/ship/generate/", claimed.payload),
+    const label = await generateProvider(
+      provider,
+      claimed.payload,
+      claimed.rate,
+      id,
     );
     if (
       label.carrier !== claimed.rate.carrier ||
@@ -259,8 +325,11 @@ export async function generateEnvia(
         data: {
           state: "CREATED",
           trackingNumber: label.trackingNumber,
-          labelUrl: safeLabelUrl(label.label),
-          providerStatus: "Created",
+          labelUrl: providerLabelUrl(provider, label.label),
+          providerStatus:
+            provider === "envioclick"
+              ? "Guía ficticia; sin recogida ni seguimiento real"
+              : "Created",
         },
       });
       if (changed.count !== 1) throw Error("Shipment state changed");
@@ -280,7 +349,10 @@ export async function generateEnvia(
         data: {
           orderId: id,
           status: "PREPARING",
-          note: "Guía de prueba creada en Envia Sandbox; pendiente de recogida.",
+          note:
+            "Guía de prueba creada en " +
+            providerName(provider) +
+            "; no representa un despacho real.",
         },
       });
       await tx.adminAudit.create({
@@ -290,7 +362,8 @@ export async function generateEnvia(
           action: "ENVIA_CREATED",
           before: { state: "GENERATING" },
           after: { state: "CREATED", trackingNumber: label.trackingNumber },
-          reason: "Respuesta confirmada de Envia Sandbox",
+          reason:
+            "Respuesta confirmada de " + providerName(provider) + " Sandbox",
         },
       });
       await queueOrderMail(
@@ -311,7 +384,7 @@ export async function generateEnvia(
     });
     throw new CommerceError(
       "ENVIA_UNKNOWN",
-      "No pudimos confirmar la guía. Revisa Envia Sandbox; no se enviará otra solicitud para evitar duplicados.",
+      "No pudimos confirmar la guía. Revisa el proveedor; no se enviará otra solicitud para evitar duplicados.",
       502,
     );
   }
@@ -325,10 +398,15 @@ export async function trackEnvia(token: string | undefined, id: string) {
     if (!order?.enviaShipment || order.enviaShipment.state !== "CREATED")
       throw new CommerceError(
         "ENVIA_NOT_CREATED",
-        "No hay una guía confirmada de Envia.",
+        "No hay una guía confirmada.",
       );
     return order.enviaShipment;
   });
+  if (row.provider === "envioclick")
+    throw new CommerceError(
+      "SANDBOX_TRACKING",
+      "La guía ficticia de Envíoclick no tiene recogida ni seguimiento real.",
+    );
   const result = await enviaRequest("/ship/generaltrack/", {
     trackingNumbers: [row.trackingNumber],
   });

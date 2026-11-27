@@ -15,12 +15,20 @@ export function EnviaWorkspace({
     [configured, setConfigured] = useState(false),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
+  const [provider, setProvider] = useState("envia");
+  const isClick = provider === "envioclick";
+  const providerLabel = isClick ? "Envíoclick" : "Envia.com";
+  const recordLabel =
+    view?.provider === "envioclick" ? "Envíoclick" : "Envia.com";
   const lock = useRef(false);
   const path = "/api/admin/orders/" + encodeURIComponent(order.id) + "/envia";
   async function load() {
-    const r = await api<{ configured: boolean; shipment: EnviaView | null }>(
-      path,
-    );
+    const r = await api<{
+      configured: boolean;
+      provider: string;
+      shipment: EnviaView | null;
+    }>(path);
+    setProvider(r.provider);
     setView(r.shipment);
     setConfigured(r.configured);
   }
@@ -49,20 +57,26 @@ export function EnviaWorkspace({
   function quote(form: HTMLFormElement) {
     const f = new FormData(form),
       location = (prefix: string) => ({
+        suburb: isClick ? String(f.get(prefix + "Suburb")) : undefined,
+        crossStreet: isClick
+          ? String(f.get(prefix + "CrossStreet"))
+          : undefined,
+        reference: isClick ? String(f.get(prefix + "Reference")) : undefined,
         city: String(f.get(prefix + "City")),
-        state: String(f.get(prefix + "State")),
-        postalCode: String(f.get(prefix + "Postal")),
+        state: isClick ? "DC" : String(f.get(prefix + "State")),
+        postalCode: isClick ? "000000" : String(f.get(prefix + "Postal")),
       });
     void run("QUOTE", {
       expectedVersion: order.version,
       origin: {
         ...location("origin"),
+        email: isClick ? f.get("email") : undefined,
         name: f.get("name"),
         phone: f.get("phone"),
         street: f.get("street"),
       },
       destination: location("destination"),
-      carrier: f.get("carrier"),
+      carrier: isClick ? "automatic" : f.get("carrier"),
       weight: Number(f.get("weight")),
       length: Number(f.get("length")),
       width: Number(f.get("width")),
@@ -72,15 +86,20 @@ export function EnviaWorkspace({
   }
   return (
     <section className="order-card">
-      <h3>Envia.com Sandbox</h3>
+      <h3>{providerLabel} · Guías de prueba</h3>
+      {isClick && (
+        <p>
+          La cotización consulta tarifas normales. La guía será ficticia, sin
+          cobro, recogida ni seguimiento real.
+        </p>
+      )}
       <p>
         Guías de prueba para Colombia. El importe cotizado aquí corresponde al
         servicio de transporte; no modifica el total ya pagado del pedido.
       </p>
       {!configured && (
         <p className="notice">
-          Falta configurar ENVIA_API_TOKEN y ENVIA_ENVIRONMENT=sandbox en el
-          archivo .env local.
+          El proveedor de envíos aún no está configurado para pruebas.
         </p>
       )}
       <p role="status">{message}</p>
@@ -109,7 +128,7 @@ export function EnviaWorkspace({
           </p>
           {["UNKNOWN", "GENERATING"].includes(view.state) && (
             <p className="notice">
-              Comprueba el resultado en Envia Sandbox. No se repetirá la
+              Comprueba el resultado en {recordLabel}. No se repetirá la
               solicitud; si la conexión falló, la guía podría haberse creado.
             </p>
           )}
@@ -119,7 +138,7 @@ export function EnviaWorkspace({
                 {view.carrier} · {view.service} · Guía {view.trackingNumber}
               </p>
               <p>
-                Estado informado por Envia: {view.providerStatus}
+                Estado informado por {recordLabel}: {view.providerStatus}
                 {view.checkedAt &&
                   " · " +
                     new Date(view.checkedAt).toLocaleString("es-CO", {
@@ -139,15 +158,15 @@ export function EnviaWorkspace({
               )}
               <button
                 className="button secondary"
-                disabled={busy || !configured}
+                disabled={busy || view.provider === "envioclick"}
                 onClick={() => void run("TRACK")}
               >
-                Consultar seguimiento en Envia
+                Consultar seguimiento en {recordLabel}
               </button>
               <p className="muted">
-                Esta consulta muestra el estado del proveedor. Registra los
-                cambios logísticos en el seguimiento del pedido; no hay
-                notificaciones automáticas.
+                {view.provider === "envioclick"
+                  ? "La guía Sandbox no tiene movimientos reales. Puedes simular los estados desde el seguimiento manual del pedido."
+                  : "Esta consulta muestra el estado del proveedor. Registra los cambios logísticos en el seguimiento del pedido."}
               </p>
             </>
           )}
@@ -185,6 +204,18 @@ export function EnviaWorkspace({
                       />
                     </label>
                   ))}
+                  {isClick && (
+                    <label>
+                      Correo del remitente ficticio
+                      <input
+                        type="email"
+                        name="email"
+                        defaultValue="pruebas@example.invalid"
+                        required
+                        maxLength={60}
+                      />
+                    </label>
+                  )}
                   {(["origin", "destination"] as const).map((prefix) => (
                     <fieldset key={prefix}>
                       <legend>
@@ -193,7 +224,7 @@ export function EnviaWorkspace({
                           : "Destino del pedido: " + order.shippingLabel}
                       </legend>
                       <label>
-                        Código de ciudad Envia (DANE de 8 dígitos)
+                        Código DANE de ciudad (8 dígitos)
                         <input
                           name={prefix + "City"}
                           required
@@ -201,40 +232,64 @@ export function EnviaWorkspace({
                           maxLength={8}
                         />
                       </label>
-                      <label>
-                        Código de departamento Envia (ejemplo: DC)
-                        <input
-                          name={prefix + "State"}
-                          required
-                          pattern="[A-Z0-9]{2,3}"
-                          maxLength={3}
-                        />
-                      </label>
-                      <label>
-                        Código postal requerido por Envia
-                        <input
-                          name={prefix + "Postal"}
-                          required
-                          pattern="[0-9]{5,8}"
-                          maxLength={8}
-                        />
-                      </label>
+                      {!isClick && (
+                        <>
+                          <label>
+                            Código de departamento Envia (ejemplo: DC)
+                            <input
+                              name={prefix + "State"}
+                              required
+                              pattern="[A-Z0-9]{2,3}"
+                              maxLength={3}
+                            />
+                          </label>
+                          <label>
+                            Código postal requerido por Envia
+                            <input
+                              name={prefix + "Postal"}
+                              required
+                              pattern="[0-9]{5,8}"
+                              maxLength={8}
+                            />
+                          </label>
+                        </>
+                      )}
+                      {isClick &&
+                        (
+                          [
+                            ["Suburb", "Barrio", 30],
+                            ["CrossStreet", "Entre calles", 35],
+                            ["Reference", "Referencia de ubicación", 25],
+                          ] as const
+                        ).map(([suffix, label, max]) => (
+                          <label key={suffix}>
+                            {label}
+                            <input
+                              name={prefix + suffix}
+                              minLength={2}
+                              maxLength={max}
+                              required
+                            />
+                          </label>
+                        ))}
                     </fieldset>
                   ))}
                   <p>
-                    Usa los códigos del catálogo Envia que correspondan al
-                    destino. El nombre, celular y dirección de entrega se toman
-                    del pedido.
+                    Usa los códigos del catálogo del proveedor que correspondan
+                    al destino. El nombre, celular y dirección de entrega se
+                    toman del pedido.
                   </p>
-                  <label>
-                    Transportadora (código Envia)
-                    <input
-                      name="carrier"
-                      defaultValue="coordinadora"
-                      required
-                      pattern="[a-zA-Z][a-zA-Z0-9_-]{1,60}"
-                    />
-                  </label>
+                  {!isClick && (
+                    <label>
+                      Transportadora (código Envia)
+                      <input
+                        name="carrier"
+                        defaultValue="coordinadora"
+                        required
+                        pattern="[a-zA-Z][a-zA-Z0-9_-]{1,60}"
+                      />
+                    </label>
+                  )}
                   {(
                     [
                       ["weight", "Peso total, kg", 0.2, 0.01, 30],
@@ -248,8 +303,8 @@ export function EnviaWorkspace({
                       <input
                         name={name}
                         type="number"
-                        defaultValue={value}
-                        min={min}
+                        defaultValue={isClick && name === "weight" ? 1 : value}
+                        min={isClick && name === "weight" ? 1 : min}
                         max={max}
                         step="0.01"
                         required
@@ -261,10 +316,15 @@ export function EnviaWorkspace({
                     Confirmo que son datos de prueba y que los códigos
                     corresponden al origen y destino indicados.
                   </label>
-                  <button className="button">Cotizar en Sandbox</button>
+                  <button className="button">Consultar tarifas</button>
                 </fieldset>
               </form>
             </details>
+            {view?.state === "QUOTED" && view.provider !== provider && (
+              <p className="notice">
+                El proveedor cambió. Vuelve a cotizar antes de generar una guía.
+              </p>
+            )}
             {view?.state === "QUOTED" && (
               <>
                 <p>
@@ -285,7 +345,9 @@ export function EnviaWorkspace({
                     });
                   }}
                 >
-                  <fieldset disabled={busy || !configured}>
+                  <fieldset
+                    disabled={busy || !configured || view.provider !== provider}
+                  >
                     <legend>Elegir servicio</legend>
                     {view.rates.map((r, i) => (
                       <label className="checkbox" key={i}>

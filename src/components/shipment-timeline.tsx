@@ -7,7 +7,10 @@ export function ShipmentTimeline({ shipment: s }: { shipment: ShippingView }) {
     <section aria-label="Seguimiento del envío">
       {s.enviaShipment?.providerStatus && (
         <p>
-          Envia Sandbox: {s.enviaShipment.providerStatus}
+          {s.enviaShipment.provider === "envioclick"
+            ? "Envíoclick"
+            : "Envia.com"}{" "}
+          Sandbox: {s.enviaShipment.providerStatus}
           {s.enviaShipment.checkedAt &&
             " · consultado " +
               new Date(s.enviaShipment.checkedAt).toLocaleString("es-CO", {

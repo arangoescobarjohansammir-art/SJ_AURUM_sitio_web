@@ -35,6 +35,11 @@ if (url.hostname !== "127.0.0.1" || url.port !== "55432")
   throw Error("Solo base local");
 url.pathname = "/aurum_test";
 process.env.DATABASE_URL = url.toString();
+const click = process.argv.includes("--envioclick");
+process.env.SHIPPING_PROVIDER = click ? "envioclick" : "envia";
+process.env.ENVIOCLICK_ENVIRONMENT = "sandbox";
+process.env.ENVIOCLICK_API_KEY = "fixture-envioclick-key-not-real";
+process.env.MAIL_PROVIDER = "local";
 process.env.APP_ENV = "development";
 process.env.DEMO_CHECKOUT_ENABLED = "true";
 const m = spawnSync(
@@ -63,9 +68,73 @@ let calls = 0,
   failGenerate = false;
 globalThis.fetch = async (url, options) => {
   calls++;
-  assert.ok(String(url).startsWith("https://api-test.envia.com/"));
+  assert.ok(
+    String(url).startsWith(
+      click
+        ? "https://api.envioclickpro.com.co/api/v2/"
+        : "https://api-test.envia.com/",
+    ),
+  );
   assert.equal(options?.redirect, "error");
   const body = JSON.parse(String(options?.body));
+  if (click) {
+    assert.equal(
+      (options?.headers as Record<string, string>).Authorization,
+      process.env.ENVIOCLICK_API_KEY,
+    );
+    assert.ok(
+      [
+        "https://api.envioclickpro.com.co/api/v2/quotation",
+        "https://api.envioclickpro.com.co/api/v2/shipment_sandbox",
+      ].includes(String(url)),
+    );
+    if (String(url).endsWith("/quotation")) {
+      assert.deepEqual(Object.keys(body.destination).sort(), [
+        "address",
+        "daneCode",
+      ]);
+      return Response.json({
+        status: "OK",
+        data: {
+          rates: [
+            {
+              idRate: 123,
+              carrier: "coordinadora",
+              product: "standard",
+              flete: 11000,
+              minimumInsurance: 1000,
+              deliveryDays: 2,
+              cod: false,
+            },
+            {
+              idRate: 124,
+              carrier: "coordinadora",
+              product: "contraentrega",
+              flete: 100,
+              minimumInsurance: 0,
+              deliveryDays: 2,
+              cod: true,
+            },
+          ],
+        },
+      });
+    }
+    generateCalls++;
+    assert.equal(body.idRate, 123);
+    assert.equal(body.requestPickup, false);
+    assert.equal(body.insurance, false);
+    assert.ok(!("codValue" in body));
+    assert.equal(body.destination.address, "Dirección ficticia 123");
+    if (failGenerate) throw Error("timeout");
+    return Response.json({
+      status: "OK",
+      data: {
+        idRate: 123,
+        tracker: "TEST123456",
+        url: "https://s3-us-west-2.amazonaws.com/envioclickpro-util/sandbox_guide.pdf",
+      },
+    });
+  }
   if (String(url).endsWith("/ship/rate/")) {
     assert.equal(body.destination.street, "Dirección ficticia 123");
     return Response.json({
@@ -174,8 +243,8 @@ try {
       idempotencyKey: randomUUID(),
       acceptedDemo: true,
       recipient: {
-        name: "Destinatario " + tag,
-        email,
+        name: click ? "Cliente Pruebas" : "Destinatario " + tag,
+        email: click ? "pruebas@example.invalid" : email,
         phone: "3000000000",
         address: "Dirección ficticia 123",
         additional: "",
@@ -187,6 +256,10 @@ try {
   const input = {
     expectedVersion: 0,
     origin: {
+      email: "pruebas@example.invalid",
+      suburb: "Centro",
+      crossStreet: "Calle ficticia",
+      reference: "Porteria ficticia",
       name: "SJ AURUM pruebas",
       phone: "3000000000",
       street: "Calle ficticia 123",
@@ -194,9 +267,16 @@ try {
       state: "DC",
       postalCode: "11001000",
     },
-    destination: { city: "11001000", state: "DC", postalCode: "11001000" },
+    destination: {
+      city: "11001000",
+      state: "DC",
+      postalCode: "11001000",
+      suburb: "Centro",
+      crossStreet: "Calle ficticia",
+      reference: "Porteria ficticia",
+    },
     carrier: "coordinadora",
-    weight: 0.2,
+    weight: click ? 1 : 0.2,
     length: 15,
     width: 10,
     height: 5,
@@ -217,11 +297,13 @@ try {
   });
   await db.order.update({ where: { id: first.id }, data: { status: "PAID" } });
   await check("producción bloqueada y códigos Colombia validados", async () => {
-    process.env.ENVIA_ENVIRONMENT = "production";
+    process.env[click ? "ENVIOCLICK_ENVIRONMENT" : "ENVIA_ENVIRONMENT"] =
+      "production";
     await assert.rejects(() => quoteEnvia(token, first.id, input), {
-      code: "ENVIA_CLOSED",
+      code: click ? "ENVIOCLICK_CLOSED" : "ENVIA_CLOSED",
     });
-    process.env.ENVIA_ENVIRONMENT = "sandbox";
+    process.env[click ? "ENVIOCLICK_ENVIRONMENT" : "ENVIA_ENVIRONMENT"] =
+      "sandbox";
     await assert.rejects(() =>
       quoteEnvia(token, first.id, {
         ...input,
@@ -233,6 +315,24 @@ try {
   const q = await quoteEnvia(token, first.id, input);
   await check("cotización persistida y selección no manipulable", async () => {
     assert.equal(q.rates instanceof Array, true);
+    if (click) {
+      assert.equal((q.rates as Array<{ totalPrice: number }>).length, 1);
+      assert.equal(
+        (q.rates as Array<{ totalPrice: number }>)[0].totalPrice,
+        12000,
+      );
+      process.env.SHIPPING_PROVIDER = "envia";
+      await assert.rejects(
+        () =>
+          generateEnvia(token, first.id, {
+            quoteKey: q.quoteKey,
+            rateIndex: 0,
+            acceptedSandbox: true,
+          }),
+        { code: "QUOTE_CHANGED" },
+      );
+      process.env.SHIPPING_PROVIDER = "envioclick";
+    }
     await assert.rejects(
       () =>
         generateEnvia(token, first.id, {
@@ -287,10 +387,16 @@ try {
     },
   );
   await check("consulta de seguimiento y privacidad", async () => {
-    const tracking = await trackEnvia(token, first.id);
-    assert.equal(tracking.providerStatus, "In transit");
+    if (click)
+      await assert.rejects(() => trackEnvia(token, first.id), {
+        code: "SANDBOX_TRACKING",
+      });
+    else {
+      const tracking = await trackEnvia(token, first.id);
+      assert.equal(tracking.providerStatus, "In transit");
+    }
     const own = (await listOrders(session.id)).find((o) => o.id === first.id)!;
-    assert.equal(own.enviaShipment?.providerStatus, "In transit");
+    assert.equal(own.enviaShipment?.provider, click ? "envioclick" : "envia");
     assert.ok(!("payload" in own.enviaShipment!));
     assert.ok(!("labelUrl" in own.enviaShipment!));
     const status = await enviaStatus(token, first.id);
@@ -330,10 +436,21 @@ try {
         { code: "ENVIA_EXISTS" },
       );
       assert.equal(generateCalls, 2);
+      if (click) {
+        process.env.SHIPPING_PROVIDER = "envia";
+        await assert.rejects(
+          () => quoteEnvia(token, second.id, { ...input, expectedVersion: 1 }),
+          { code: "ENVIA_EXISTS" },
+        );
+        process.env.SHIPPING_PROVIDER = "envioclick";
+      }
     },
   );
   console.log(
-    count + " grupos Envia Sandbox aprobados con proveedor simulado.",
+    count +
+      " grupos " +
+      (click ? "Envíoclick" : "Envia") +
+      " aprobados con proveedor simulado.",
   );
 } finally {
   globalThis.fetch = originalFetch;

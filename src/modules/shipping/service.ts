@@ -89,7 +89,7 @@ export async function updateShipment(
     if (envia && ["GENERATING", "UNKNOWN"].includes(envia.state))
       throw new CommerceError(
         "ENVIA_PENDING",
-        "Revisa primero la solicitud pendiente en Envia Sandbox.",
+        "Revisa primero la solicitud pendiente con el proveedor de envíos.",
       );
     if (
       envia?.state === "CREATED" &&
@@ -98,7 +98,7 @@ export async function updateShipment(
     )
       throw new CommerceError(
         "ENVIA_GUIDE",
-        "Conserva la transportadora y la guía creadas por Envia.",
+        "Conserva la transportadora y la guía creadas por el proveedor.",
       );
     if (order.version !== data.expectedVersion)
       throw new CommerceError(
