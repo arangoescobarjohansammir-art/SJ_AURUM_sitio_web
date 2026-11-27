@@ -1,0 +1,37 @@
+{
+  "usage": "Stitch reference imagery for labeled demonstration only. Commercial rights pending confirmation.",
+  "assets": [
+    {
+      "name": "product-1.jpg",
+      "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuAMtq8_HyyFQmEo2LA3SI0bYVLReiu5nP11-KvPDkOUc0Y4QqORWuWJuYX47qhI_m-g56KcHcpSh_HDruvuhb75zL1I3fobNy0f7OjVvEfOHFrLdhZkg4XPdS-EHB6Z84i4wCOPFO4TdVdPdF4M0i2VFkiK-BpdRWt1QMRI-BbMq_xy-DHZiq6FYHmtc9mUAgmgnD9fbar-RNOQvWweK77nmOgJYiVNk0cVlN4SADjL"
+    },
+    {
+      "name": "product-2.jpg",
+      "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuAgUMTUwJT_R03tHl3MiBAXiVN83qimH9YMW3NvN964VLqVO9mEFAFYrB85TKFkC_9W270Ll8SmK3sSEAbqztcCPaeOPYUViyDqY7uUy33MhI5o2DTUlpE3Xo1fRTOG4bXvEEmDRdaociN3Si9QPfnCf1j3ssauTwltBLS3Hw-1aIBZaCJBhFrfHzth3jUEvvtYNCL4hPCPXTtVrDsOJyVE1Ivz8aH6T-aAbSXFwp0g"
+    },
+    {
+      "name": "product-3.jpg",
+      "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuBS--ytliT3EO8UOY32XZE_zc5_TtisY7FrBW8u5SvKfJ59MrHFF9eiMPSJFB2ZO775XgJMBh2tCt-bXmJWbYhiIfJWRpj5SGNVxlZ09P8hq5YNaA_xr6SFZqaG4I3JSVgQX7-irWj7ZJs3xB3mtBY1APJVJTGYfll8VRcD--b9lcy995eC6CenXVYjQtSGflGZYZ_W4QKwIP7iTQgwoBCf9yWqaV4yky4NEu2hHlKA"
+    },
+    {
+      "name": "product-4.jpg",
+      "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuAjcGphgBNS_2o8Sq6RHz9Hfrl0HKoixKvlBhx8BVb1Y5Ca1LYsbnfKNwrA6ycw4rQzA6r3BrAY_WMdvo133VL0Ksg4OmwJpnREIJm7NyGBWf-3m6vsKoO6XzttMck6DdcAMN8tnXkTmrtBedbpFFukeWZJBafzRQalQq7Kw7kthtAJ7ik-DkySRmooKOdYNKWwN-n-EEu0Tk9GfxB-m7TtYfm2FrZk30mJX_Z0eJmT"
+    },
+    {
+      "name": "product-5.jpg",
+      "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuBvCUzRDlxzy0bboVPLxtxbzj1mbzaSwjAK7h7tySj1cEIbk0M9KzVMnVzimea7BU80RPiY0taXIj8N6Bm1Ry5Z4OgDRdtZsGQV34hVrMRVVDVj_B0jc6s78y1p1Z0hNxo89xDOH-hEymOFXTkE1wxIArTmNsX0KUOKDdmy1s2iXDijmb6wNa2-n5SggC-6fP43w4ROr49t8UpTqmxl5iafd71smgK45zt2Akq7MNHq"
+    },
+    {
+      "name": "product-6.jpg",
+      "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuDAB3fyd-lKKnKnzaVsVax7Wc5VE5DJhDpulpTAz8ZWE17LdFzbDJR7tEoE3q4GRstdPzBmfGPzlhPrtlBxg2rRB4BusNkye8XaBX-HPXFvVlTEcUZYdYQqTCO3cisAtPB0oRfTGcfuaP_DeYTyOQgM1d_4Sb7QJ9oojFJXcoaQ7_4iVxgFXeVFYQKok1aN8UfYVHwcpS8T03T23kTIFl4cUTzlfthHhu9hRAAy_vtC"
+    },
+    {
+      "name": "hero.jpg",
+      "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuAjY0_ZNXdTtZfhZygTS-spduZlJGtor-sWYfA_H7hm0qRAigrKaW7C7rEm_m2qnCYqMqaHABl84AJPZ7UAVJ5XKaevhgCzw4fM2z_hs3Zo77lBadClyT9F6ZdUp9xJslGB3yJFuxApk7Ov6HmW2r9mPnQ2itVZm6u1JJJGQ2yhbniryNrSyCJGRzqCvdkoyvZT4pbF7fNPaKBnVDo8WP7GjtWqszpHwrhdpH2FArBS"
+    },
+    {
+      "name": "detail.jpg",
+      "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuBUm3OwCaszCwADSA6XfBqzFUBvyTCs5N5PdqNhYIF3GVruB-riMYpst9Sjny_m7M2A9D1n9XKWh4I_4I2zXFD8SUyjR2isyMZaoz-3MYLaoYN8wkyze5cN7Ars4OOlyy5x6MZPLbfdYHZutnCHu54jWm1QBQDNpQf7PZDfJUz77WOWATlctUxX-njVJmjQfLQ5-YScr38F2KJDPLhgMGfPfNnFEccZe71QfMDcHN5R"
+    }
+  ]
+}

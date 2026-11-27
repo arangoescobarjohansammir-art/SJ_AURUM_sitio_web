@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "overrides": { "effect": "3.22.1" },
+  "overrides": {
+    "effect": "3.22.1"
+  },
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
     "build": "next build",
@@ -31,6 +33,7 @@
     "@types/pg": "8.23.1",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "prettier": "3.10.1",
     "prisma": "7.10.1",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0"

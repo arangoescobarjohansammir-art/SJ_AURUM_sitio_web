@@ -4,7 +4,7 @@ Tienda de joyería y accesorios de oro laminado para Colombia. Desarrollo por fa
 
 ## Estado
 
-Auditoría completa en `docs/AUDITORIA.md`. Preparación técnica en curso. **No es todavía una tienda operativa ni está habilitada para pagos.** Los datos de ejemplo están autorizados por el usuario y deberán sustituirse antes del lanzamiento.
+Auditoría y preparación técnica completadas. Primera unidad de interfaz implementada: inicio, navegación responsive, catálogo con búsqueda/filtros/orden/carga adicional, detalle con variantes y galería, favoritos y bolsa persistentes en navegador. **No es todavía una tienda operativa ni está habilitada para pagos.** Los datos de ejemplo están autorizados por el usuario y deberán sustituirse antes del lanzamiento. Estado detallado y límites en `docs/ESTADO.md`.
 
 ## Desarrollo local
 
@@ -29,7 +29,11 @@ PostgreSQL y las integraciones externas requieren configuración independiente. 
 
 ## Marca y referencias
 
-Logo original en `public/brand/sj-aurum.png`, sin modificaciones. Paleta y tipografías en `src/app/globals.css`. Las fuentes deben incorporarse localmente antes de validar fidelidad tipográfica. Las referencias originales permanecen fuera del repositorio de aplicación.
+Logo original en `public/brand/sj-aurum.png`, sin modificaciones. Paleta en `src/app/globals.css`. Playfair Display y Plus Jakarta Sans se sirven localmente mediante Fontsource. Las fotos ilustrativas de Stitch están en `public/images`; sus procedencias y limitación de uso están en `docs/asset-sources.json`. Las referencias originales permanecen fuera del repositorio de aplicación.
+
+Las categorías sin productos de ejemplo muestran un estado vacío. No se inventan ventas para ordenar por popularidad, reseñas, beneficios comerciales ni garantías. Las páginas de información son notas pendientes de definición, no políticas comerciales vigentes.
+
+Prisma 7 y su adaptador PostgreSQL están instalados para la siguiente fase; aún no existen esquema, migraciones ni conexión de datos. Los comandos `db:*` están preparados pero no son funcionales hasta crear esa capa. La fijación transitoria `effect@3.22.1` corrige la alerta ReDoS transitiva de Prisma; revisar su necesidad al actualizar Prisma.
 
 ## Control de versiones
 
