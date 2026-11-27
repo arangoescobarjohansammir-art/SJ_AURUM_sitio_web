@@ -7,7 +7,7 @@
     "effect": "3.22.1"
   },
   "scripts": {
-    "dev": "next dev --hostname 127.0.0.1",
+    "dev": "next dev --webpack --hostname 127.0.0.1",
     "build": "next build",
     "start": "next start --hostname 127.0.0.1",
     "typecheck": "tsc --noEmit",
@@ -24,7 +24,10 @@
     "reservations:expire": "tsx scripts/release-expired.ts",
     "test:auth": "tsx scripts/auth-integration.ts",
     "test:auth-http": "node scripts/auth-http.mjs",
-    "mail:local": "node scripts/local-mail.mjs"
+    "mail:local": "node scripts/local-mail.mjs",
+    "admin:role": "tsx scripts/admin-role.ts",
+    "test:admin": "tsx scripts/admin-integration.ts",
+    "test:admin-http": "tsx scripts/admin-http.ts"
   },
   "dependencies": {
     "@fontsource/playfair-display": "5.3.0",
