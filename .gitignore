@@ -8,3 +8,5 @@ coverage/
 !.env.example
 *.log
 work/
+.local/
+src/generated/
