@@ -193,6 +193,12 @@ export async function refundPayment(
         "NOT_REFUNDABLE",
         "Este pedido no admite un reembolso.",
       );
+    const shipment = await tx.enviaShipment.findUnique({ where: { orderId } });
+    if (shipment && ["GENERATING", "UNKNOWN"].includes(shipment.state))
+      throw new CommerceError(
+        "ENVIA_PENDING",
+        "Revisa la guía pendiente de Envia antes de solicitar un reembolso.",
+      );
     if (payment.refund)
       throw new CommerceError(
         "REFUND_EXISTS",

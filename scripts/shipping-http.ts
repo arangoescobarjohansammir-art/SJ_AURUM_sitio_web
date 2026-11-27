@@ -40,6 +40,16 @@ async function call(
   return { status: response.status, data: await response.json() };
 }
 try {
+  assert.equal((await call("/api/admin/orders/unknown/envia")).status, 401);
+  assert.equal(
+    (await call("/api/admin/orders/unknown/envia", "POST", { action: "QUOTE" }))
+      .status,
+    401,
+  );
+  assert.equal(
+    (await call("/api/admin/orders/unknown/envia", "POST", {}, true)).status,
+    403,
+  );
   assert.equal((await call("/api/admin/shipping")).status, 401);
   for (const path of [
     "/api/admin/shipping",
@@ -61,12 +71,22 @@ try {
   );
   await call("/api/auth/login", "POST", { email, password });
   assert.equal((await call("/api/admin/shipping")).status, 403);
+  assert.equal((await call("/api/admin/orders/unknown/envia")).status, 403);
   const link = await issueToken(email, "VERIFY");
   assert.ok(link);
   await consumeToken({ token: link.token }, "VERIFY");
   await changeDevelopmentRole(email, "grant");
   await call("/api/auth/login", "POST", { email, password });
   assert.equal((await call("/api/admin/shipping")).status, 200);
+  assert.equal((await call("/api/admin/orders/unknown/envia")).status, 404);
+  assert.equal(
+    (
+      await call("/api/admin/orders/unknown/envia", "POST", {
+        action: "INVALID",
+      })
+    ).status,
+    400,
+  );
   assert.equal((await call("/api/admin/shipping", "POST", {})).status, 400);
   assert.equal(
     (await call("/api/admin/orders/unknown/shipping", "POST", {})).status,

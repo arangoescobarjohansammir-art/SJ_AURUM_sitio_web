@@ -1,5 +1,7 @@
 # Envíos de ejemplo
 
+Actualización: integración opcional con Envia.com Sandbox desde el detalle de pedidos. Ver ENVIA-SANDBOX.md para cotización, guía y consulta de estado. Los apartados siguientes describen el flujo manual y las tarifas del checkout.
+
 Administración en /admin/envios; seguimiento desde el detalle en /admin/pedidos. Requiere cuenta administradora activa y verificada.
 
 ## Cobertura y tarifas

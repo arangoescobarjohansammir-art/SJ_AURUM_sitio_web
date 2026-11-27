@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { formatCOP } from "@/lib/money";
+import { EnviaWorkspace } from "./envia-workspace";
 import { ShipmentTimeline } from "@/components/shipment-timeline";
 import { shippingStates } from "@/modules/shipping/validation";
 import { paymentLabels } from "@/modules/payments/labels";
@@ -129,6 +130,10 @@ export function OrdersWorkspace() {
             Creado: {date(view.order.createdAt)} · Vencimiento:{" "}
             {date(view.order.expiresAt)} (hora de Colombia)
           </p>
+          <EnviaWorkspace
+            order={view.order}
+            onUpdated={() => read(view.order.id)}
+          />
           <ShipmentTimeline shipment={view.order} />
           {view.order.status === "PAID" &&
             view.order.payment?.status === "APPROVED" &&

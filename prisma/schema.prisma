@@ -110,6 +110,7 @@ model ShippingRate {
 }
 
 model Order {
+  enviaShipment EnviaShipment?
   shippingCarrier String @default("Por definir")
   shippingEstimate String @default("Por definir")
   shippingStatus String @default("PENDING")
@@ -323,4 +324,24 @@ model MediaAsset {
   size      Int
   data      Bytes
   createdAt DateTime @default(now())
+}
+
+model EnviaShipment {
+  id String @id @default(uuid())
+  orderId String @unique
+  order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  quoteKey String
+  state String @default("QUOTED")
+  payload Json
+  rates Json
+  expiresAt DateTime
+  orderVersion Int
+  trackingNumber String @default("")
+  labelUrl String @default("")
+  carrier String @default("")
+  service String @default("")
+  providerStatus String @default("")
+  checkedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

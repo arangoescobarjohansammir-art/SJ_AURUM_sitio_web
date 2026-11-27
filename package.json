@@ -38,7 +38,8 @@
     "test:catalog-media": "tsx scripts/catalog-media-integration.ts",
     "test:catalog-media-http": "tsx scripts/catalog-media-http.ts",
     "test:shipping": "tsx scripts/shipping-integration.ts",
-    "test:shipping-http": "tsx scripts/shipping-http.ts"
+    "test:shipping-http": "tsx scripts/shipping-http.ts",
+    "test:envia": "tsx scripts/envia-integration.ts"
   },
   "dependencies": {
     "@fontsource/playfair-display": "5.3.0",

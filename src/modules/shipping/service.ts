@@ -84,6 +84,21 @@ export async function updateShipment(
     });
     if (!order)
       throw new CommerceError("NOT_FOUND", "Pedido no encontrado.", 404);
+    const envia = await tx.enviaShipment.findUnique({ where: { orderId: id } });
+    if (envia && ["GENERATING", "UNKNOWN"].includes(envia.state))
+      throw new CommerceError(
+        "ENVIA_PENDING",
+        "Revisa primero la solicitud pendiente en Envia Sandbox.",
+      );
+    if (
+      envia?.state === "CREATED" &&
+      (data.carrier !== envia.carrier ||
+        data.trackingNumber !== envia.trackingNumber)
+    )
+      throw new CommerceError(
+        "ENVIA_GUIDE",
+        "Conserva la transportadora y la guía creadas por Envia.",
+      );
     if (order.version !== data.expectedVersion)
       throw new CommerceError(
         "EDIT_CONFLICT",

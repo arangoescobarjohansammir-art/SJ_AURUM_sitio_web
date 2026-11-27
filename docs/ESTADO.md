@@ -1,6 +1,10 @@
 # Estado de desarrollo — administración de catálogo e inventario
 
-## Incremento más reciente: envíos de ejemplo
+## Incremento más reciente: Envia.com Sandbox
+
+Integración administrativa para cotizar paquetes nacionales, elegir servicio, solicitar una guía de prueba una sola vez y consultar su estado. Credenciales solo en .env; producción bloqueada. Mantiene las tarifas manuales del checkout. Primer intento externo devolvió 401 en cotización y 503 en consultas; guía externa aún sin verificar. Ver ENVIA-SANDBOX.md.
+
+## Incremento anterior: envíos de ejemplo
 
 27 de noviembre de 2026. Panel de cobertura, tarifas, transportadora y plazos; direcciones guardadas con comprobación de propiedad/cobertura; instantánea de dirección y tarifa al comprar; seguimiento manual con guía e historial visible al propietario. Solo pedidos con pago aprobado, sin reembolsos solicitados. No hay integración con transportadora real. Detalles: ENVIOS.md. Verificación: TypeScript, compilación, 10 pruebas unitarias, 6 grupos de envíos, controles HTTP y regresiones de pedidos (7), pagos (7) y comercio (8) aprobados.
 

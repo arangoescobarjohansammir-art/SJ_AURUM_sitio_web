@@ -1,6 +1,6 @@
 # SJ AURUM
 
-Envíos de ejemplo: cobertura y tarifas en /admin/envios, direcciones guardadas en checkout y seguimiento manual desde pedidos. Guía: [docs/ENVIOS.md](docs/ENVIOS.md).
+Envíos de ejemplo: cobertura y tarifas en /admin/envios, direcciones guardadas en checkout y seguimiento manual desde pedidos. Guía: [docs/ENVIOS.md](docs/ENVIOS.md). Envia.com Sandbox: cotizaciones, guías y consulta de estado desde pedidos; ver [docs/ENVIA-SANDBOX.md](docs/ENVIA-SANDBOX.md).
 
 Tienda de joyería y accesorios de oro laminado para Colombia, desarrollada por fases desde las referencias de Stitch y el logo original.
 
