@@ -4,9 +4,9 @@ Tienda de joyería y accesorios de oro laminado para Colombia, desarrollada por 
 
 ## Estado
 
-Inicio, catálogo, detalle, favoritos y bolsa responsive. El catálogo y la bolsa consultan PostgreSQL. El checkout genera pedidos de prueba persistidos, calcula precios, cupones y envíos en el servidor y reserva inventario durante 15 minutos. El historial privado del navegador permite cancelarlos.
+Inicio, catálogo, detalle, favoritos y bolsa responsive. El catálogo y la bolsa consultan PostgreSQL. El checkout genera pedidos de prueba persistidos, calcula precios, cupones y envíos en el servidor y reserva inventario durante 15 minutos. El historial privado del navegador o de la cuenta permite cancelarlos. Mi cuenta incluye registro, acceso, perfil, direcciones, verificación y recuperación mediante bandeja local.
 
-**No es una tienda operativa. No hay cobros, envíos reales ni cuentas de clientes todavía.** Los productos, tarifas y condiciones son ejemplos autorizados. Alcance y pendientes en docs/ESTADO.md.
+**No es una tienda operativa. No hay cobros ni envíos reales. Las cuentas funcionan solo en desarrollo.** Los productos, tarifas y condiciones son ejemplos autorizados. Alcance y pendientes en docs/ESTADO.md.
 
 ## Desarrollo local
 
@@ -30,6 +30,8 @@ El seed solo crea ejemplos ausentes; preserva cambios existentes de precios e in
 - npm run build
 - npm run test:integration (PostgreSQL local activo; migra y usa exclusivamente aurum_test en 127.0.0.1:55432).
 - npm run test:http (tienda y PostgreSQL locales activos).
+- npm run test:auth (PostgreSQL local activo).
+- npm run test:auth-http (servidor local activo).
 - npm audit
 
 Las pruebas de integración agregan registros aislados por identificador, sin borrar datos anteriores. No apuntarlas a producción.
@@ -42,7 +44,7 @@ El servidor recalcula importes COP, valida disponibilidad, cupón y destino. La 
 
 Los pedidos tienen estados RESERVED, CANCELLED y EXPIRED; nunca se presentan como pagados. Se registran movimientos de reserva y liberación. Al confirmar se vacía la bolsa. Cancelar o vencer devuelve unidades y cupón una sola vez.
 
-La limpieza de vencidos se ejecuta al consultar catálogo, pedidos o checkout, en lotes de 100. npm run reservations:expire permite ejecutarla manualmente. Antes de producción necesita un proceso periódico operado y monitorizado; no se ha configurado ninguno. No existe aún administración, autenticación de clientes ni política final de retención de sesiones/datos.
+La limpieza de vencidos se ejecuta al consultar catálogo, pedidos o checkout, en lotes de 100. npm run reservations:expire permite ejecutarla manualmente. Antes de producción necesita un proceso periódico operado y monitorizado; no se ha configurado ninguno. No existe aún administración ni política final de retención de sesiones/datos. Las cuentas de desarrollo se describen en docs/CUENTAS.md.
 
 ## Marca y referencias
 
@@ -53,3 +55,7 @@ Logo íntegro en public/brand/sj-aurum.png. Fuentes locales Playfair Display y P
 Repositorio solicitado: https://github.com/arangoescobarjohansammir-art/SJ_aurum_sitio_web.git
 
 Commits por unidad funcional, tras verificar. No se ha desplegado hosting. La fijación transitoria effect@3.22.1 corrige una alerta de Prisma; revisarla al actualizar dependencias.
+
+## Mi cuenta y bandeja local
+
+Abrir /cuenta para registrar datos ficticios. Si .env ya existía, añadir LOCAL_MAIL_DIRECTORY=.local/mail. Para ver el enlace de verificación o recuperación: npm run mail:local -- cliente@example.invalid. Solo prepara mensajes locales; no envía correo real. Ver docs/CUENTAS.md para seguridad, sesiones, asociación de pedidos y límites antes de producción.

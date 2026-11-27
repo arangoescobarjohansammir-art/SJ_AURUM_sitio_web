@@ -36,6 +36,7 @@ export function Header() {
               Colección
             </Link>
             <Link href="/nosotros">La esencia AURUM</Link>
+            <Link href="/cuenta">Mi cuenta</Link>
           </nav>
           <div className="header-actions">
             <Link
@@ -70,6 +71,7 @@ export function Header() {
             { href: "/catalogo", icon: "diamond", label: "Catálogo" },
             { href: "/favoritos", icon: "heart", label: "Favoritos" },
             { href: "/bolsa", icon: "bag", label: "Bolsa" },
+            { href: "/cuenta", icon: "user", label: "Cuenta" },
           ] as const
         ).map((item) => (
           <Link

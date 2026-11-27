@@ -70,8 +70,9 @@ export default function Page() {
       <p className="eyebrow">Tu experiencia AURUM</p>
       <h1>Pedidos de prueba</h1>
       <p className="notice">
-        Solo aparecen los pedidos de este navegador. Las reservas duran 15
-        minutos; no representan compras, pagos ni envíos. Horarios de Colombia.
+        Al iniciar sesión verás los pedidos de tu cuenta; como visitante, los de
+        este navegador. Las reservas duran 15 minutos y no representan compras,
+        pagos ni envíos. Horarios de Colombia.
       </p>
       {error && <p role="alert">{error}</p>}
       <button

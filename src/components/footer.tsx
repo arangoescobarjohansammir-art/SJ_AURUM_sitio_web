@@ -24,6 +24,7 @@ export function Footer() {
           <Link href="/catalogo">Todas las piezas</Link>
           <Link href="/favoritos">Tus favoritos</Link>
           <Link href="/pedidos">Pedidos de prueba</Link>
+          <Link href="/cuenta">Mi cuenta</Link>
           <Link href="/nosotros">La esencia AURUM</Link>
         </div>
         <div>

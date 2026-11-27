@@ -2,10 +2,16 @@ export function Icon({
   name,
   size = 22,
 }: {
-  name: "bag" | "search" | "heart" | "close" | "diamond" | "home";
+  name: "bag" | "search" | "heart" | "close" | "diamond" | "home" | "user";
   size?: number;
 }) {
   const paths = {
+    user: (
+      <>
+        <circle cx="12" cy="7" r="4" />
+        <path d="M4 21v-2a8 8 0 0 1 16 0v2" />
+      </>
+    ),
     bag: (
       <>
         <path d="M5 7h14l1 14H4L5 7Z" />

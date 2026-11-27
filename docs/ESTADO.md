@@ -1,4 +1,4 @@
-# Estado de desarrollo — datos y pedidos de prueba
+# Estado de desarrollo — cuentas y pedidos de prueba
 
 26 de noviembre de 2026, Colombia. Entrega incremental; no certifica el alcance final completo.
 
@@ -22,7 +22,7 @@
 
 ## Límites
 
-Solo ejemplos; no compras, pagos, despachos, correos ni garantías comerciales. El historial pertenece al navegador mediante cookie, no a una cuenta. Borrar la cookie pierde el acceso a ese historial. Los favoritos siguen en localStorage. La bolsa del prototipo anterior no se migra automáticamente.
+Solo ejemplos; no compras, pagos, despachos, correos ni garantías comerciales. El visitante accede mediante cookie; al iniciar sesión se trasladan su bolsa y pedidos a la cuenta. Las cuentas solo se habilitan en desarrollo. Verificación y recuperación usan una bandeja local sin enviar correo. Los favoritos siguen en localStorage. La bolsa del prototipo anterior no se migra automáticamente.
 
 Los vencimientos se procesan bajo demanda o con reservations:expire; falta programar y monitorizar el proceso para producción. No hay aún política de retención, limpieza de sesiones, protección perimetral ni auditoría de seguridad completa. La base local y sus credenciales no se versionan.
 
@@ -30,7 +30,7 @@ Los vencimientos se procesan bajo demanda o con reservations:expire; falta progr
 
 1. Completar fase 2: colecciones administrables, novedades/popularidad respaldadas por datos y newsletter con consentimiento.
 2. Completar fase 3 con configuración comercial real, gestión de catálogo y futura transición a pagos. La reserva de demostración no sustituye una venta.
-3. Fase 4: registro, acceso, verificación, recuperación, roles, perfil, direcciones e historial asociado a cuenta.
+3. Completar fase 4 para producción: correo transaccional, endurecimiento y revisión de autenticación, controles administrativos, consentimiento/retención e integración de direcciones con checkout.
 4. Fase 5: proveedor de pagos confirmado, webhooks verificados, conciliación, reembolsos, correo y transporte.
 5. Fase 6: certificados, condiciones versionadas y fidelización.
 6. Fase 7: administración autorizada de productos, clientes, pedidos, inventario y configuración.
@@ -46,4 +46,8 @@ Los vencimientos se procesan bajo demanda o con reservations:expire; falta progr
 - src/app/checkout/ y src/app/pedidos/: experiencia de prueba.
 - scripts/: PostgreSQL local, integración, pruebas HTTP y liberación de vencidos.
 
-El siguiente bloque funcional es identidad y cuentas de clientes. La publicación comercial sigue pendiente.
+Identidad y cuentas de desarrollo implementadas; detalles y límites en CUENTAS.md. El siguiente bloque puede preparar administración de catálogo e inventario mientras se define el proveedor de pagos. La publicación comercial sigue pendiente.
+
+## Incremento de cuentas
+
+Registro, acceso y logout; perfil editable; cinco direcciones privadas; roles protegidos; verificación y recuperación de un uso; sesiones revocadas tras recuperación; bolsa e historial asociados a cuenta con migración transaccional del visitante. Ocho grupos de integración de cuentas y recorrido HTTP aprobados. Navegador: registro, login, perfil, dirección persistida y logout, sin desbordamiento a 320 px. Se corrigió un bucle de recarga de Turbopack causado por detectar datos locales como dependencias. No hay envío real de correo ni cuenta comercial habilitada.
