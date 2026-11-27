@@ -325,11 +325,12 @@ export async function createOrder(sessionId: string, input: unknown) {
   });
 }
 
-async function release(
+export async function release(
   tx: Tx,
   id: string,
   status: "CANCELLED" | "EXPIRED",
   sessionId?: string,
+  reason?: string,
 ) {
   const order = await tx.order.findFirst({
     where: { id, ...(sessionId ? { sessionId } : {}) },
@@ -347,7 +348,7 @@ async function release(
       status: "RESERVED",
       ...(status === "EXPIRED" ? { expiresAt: { lte: new Date() } } : {}),
     },
-    data: { status },
+    data: { status, version: { increment: 1 } },
   });
   if (changed.count) {
     for (const item of order.items) {
@@ -362,9 +363,10 @@ async function release(
           kind: "RELEASE",
           quantity: item.quantity,
           reason:
-            status === "EXPIRED"
+            reason ??
+            (status === "EXPIRED"
               ? "Reserva de prueba vencida"
-              : "Cancelación de prueba por su propietario",
+              : "Cancelación de prueba por su propietario"),
         },
       });
     }

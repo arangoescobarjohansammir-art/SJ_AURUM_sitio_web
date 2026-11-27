@@ -1170,3 +1170,28 @@ details p {
     flex-direction: column;
   }
 }
+
+.admin-order-filters {
+  max-width: none;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  align-items: end;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.order-number,
+.order-note {
+  overflow-wrap: anywhere;
+}
+.order-note {
+  white-space: pre-wrap;
+}
+.admin-audit-list {
+  padding: 0;
+  list-style: none;
+}
+@media (max-width: 760px) {
+  .admin-order-filters {
+    grid-template-columns: 1fr;
+  }
+}

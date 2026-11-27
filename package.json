@@ -27,7 +27,9 @@
     "mail:local": "node scripts/local-mail.mjs",
     "admin:role": "tsx scripts/admin-role.ts",
     "test:admin": "tsx scripts/admin-integration.ts",
-    "test:admin-http": "tsx scripts/admin-http.ts"
+    "test:admin-http": "tsx scripts/admin-http.ts",
+    "test:admin-orders": "tsx scripts/admin-orders-integration.ts",
+    "test:admin-orders-http": "tsx scripts/admin-orders-http.ts"
   },
   "dependencies": {
     "@fontsource/playfair-display": "5.3.0",

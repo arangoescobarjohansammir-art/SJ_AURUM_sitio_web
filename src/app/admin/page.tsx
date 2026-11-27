@@ -27,6 +27,12 @@ export default async function Page() {
     <main id="contenido" className="container page">
       <p className="eyebrow">Gestión de SJ AURUM</p>
       <h1>Catálogo e inventario</h1>
+      <nav className="admin-toolbar" aria-label="Administración">
+        <Link href="/admin" aria-current="page">
+          Catálogo e inventario
+        </Link>
+        <Link href="/admin/pedidos">Pedidos</Link>
+      </nav>
       <p className="notice">
         Entorno de desarrollo. Los cambios afectan al catálogo de ejemplo. Cada
         modificación conserva autor, motivo y valores anteriores. No hay ventas

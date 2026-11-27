@@ -4,7 +4,7 @@
 
 Panel /admin para productos de ejemplo, variantes, precios COP, visibilidad, imágenes locales y ajustes de inventario. Búsqueda por nombre, enlace o SKU y paginación de 20 productos. Una ficha muestra sus últimos 50 cambios con autor, motivo y valores anteriores/nuevos.
 
-No administra todavía clientes, pedidos, cupones, envíos, marketing ni configuración general. No carga archivos a almacenamiento externo. Las imágenes se seleccionan de las siete referencias locales ya incluidas. Los productos siguen siendo demo; el panel no habilita ventas, pagos ni datos comerciales reales.
+No administra todavía clientes, cupones, envíos, marketing ni configuración general. La gestión de pedidos de ejemplo está disponible en /admin/pedidos; ver PEDIDOS-ADMIN.md. No carga archivos a almacenamiento externo. Las imágenes se seleccionan de las siete referencias locales ya incluidas. Los productos siguen siendo demo; el panel no habilita ventas, pagos ni datos comerciales reales.
 
 ## Preparación y acceso
 

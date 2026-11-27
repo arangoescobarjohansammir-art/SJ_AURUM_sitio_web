@@ -13,7 +13,7 @@ import {
   listingSchema,
 } from "./validation";
 type Tx = Prisma.TransactionClient;
-async function adminTransaction<T>(
+export async function adminTransaction<T>(
   token: string | undefined,
   run: (tx: Tx, actorId: string) => Promise<T>,
 ) {

@@ -101,6 +101,8 @@ model ShippingRate {
 }
 
 model Order {
+  followUp       String              @default("PENDING")
+  version        Int                 @default(0)
   id             String              @id @default(cuid())
   number         String              @unique
   sessionId      String
@@ -125,6 +127,7 @@ model Order {
   movements      InventoryMovement[]
 
   @@unique([sessionId, idempotencyKey])
+  @@index([demo, createdAt])
   @@index([status, expiresAt])
   @@index([sessionId, createdAt])
 }

@@ -34,6 +34,8 @@ El seed solo crea ejemplos ausentes; preserva cambios existentes de precios e in
 - npm run test:auth-http (servidor local activo).
 - npm run test:admin (PostgreSQL local activo).
 - npm run test:admin-http (servidor local activo).
+- npm run test:admin-orders (PostgreSQL local activo).
+- npm run test:admin-orders-http (servidor local activo).
 - npm audit
 
 Las pruebas de integración agregan registros aislados por identificador, sin borrar datos anteriores. No apuntarlas a producción.
@@ -46,7 +48,7 @@ El servidor recalcula importes COP, valida disponibilidad, cupón y destino. La 
 
 Los pedidos tienen estados RESERVED, CANCELLED y EXPIRED; nunca se presentan como pagados. Se registran movimientos de reserva y liberación. Al confirmar se vacía la bolsa. Cancelar o vencer devuelve unidades y cupón una sola vez.
 
-La limpieza de vencidos se ejecuta al consultar catálogo, pedidos o checkout, en lotes de 100. npm run reservations:expire permite ejecutarla manualmente. Antes de producción necesita un proceso periódico operado y monitorizado; no se ha configurado ninguno. Existe un panel limitado a catálogo e inventario de ejemplo; no hay todavía administración de pedidos/clientes ni política final de retención de sesiones/datos. Las cuentas de desarrollo se describen en docs/CUENTAS.md.
+La limpieza de vencidos se ejecuta al consultar catálogo, pedidos o checkout, en lotes de 100. npm run reservations:expire permite ejecutarla manualmente. Antes de producción necesita un proceso periódico operado y monitorizado; no se ha configurado ninguno. Existe un panel limitado a catálogo e inventario de ejemplo; no hay todavía administración de clientes ni política final de retención de sesiones/datos. Las cuentas de desarrollo se describen en docs/CUENTAS.md.
 
 ## Marca y referencias
 
@@ -65,3 +67,5 @@ Abrir /cuenta para registrar datos ficticios. Si .env ya existía, añadir LOCAL
 ## Administración
 
 Panel /admin con rol ADMIN verificado: productos, variantes, precios, imágenes locales, visibilidad, ajustes de stock y auditoría. Preparación explícita de la cuenta y comandos de rol en docs/ADMINISTRACION.md. No hay administrador ni contraseña predeterminados. El servidor de desarrollo usa Webpack para evitar recargas continuas observadas con Turbopack en este entorno Windows.
+
+El panel de pedidos está en /admin/pedidos: búsqueda, filtros, detalle privado, notas de seguimiento, cancelación de reservas e historial. Uso y límites en docs/PEDIDOS-ADMIN.md.

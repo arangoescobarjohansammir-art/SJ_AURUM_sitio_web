@@ -33,7 +33,7 @@ Los vencimientos se procesan bajo demanda o con reservations:expire; falta progr
 3. Completar fase 4 para producción: correo transaccional, endurecimiento y revisión de autenticación, controles administrativos, consentimiento/retención e integración de direcciones con checkout.
 4. Fase 5: proveedor de pagos confirmado, webhooks verificados, conciliación, reembolsos, correo y transporte.
 5. Fase 6: certificados, condiciones versionadas y fidelización.
-6. Completar fase 7: gestión de imágenes externas, clientes, pedidos, cupones, marketing y configuración. Catálogo, variantes y ajustes de inventario ya disponen de panel protegido.
+6. Completar fase 7: gestión de imágenes externas, clientes, cupones, marketing y configuración; gestión logística/comercial de pedidos cuando existan pagos. Catálogo, variantes y ajustes de inventario ya disponen de panel protegido.
 7. Fase 8: ampliar pruebas de seguridad, accesibilidad, rendimiento y dispositivos.
 8. Fase 9: hosting, dominio, HTTPS, datos/políticas aprobados, copias/restauración, monitoreo y compra validada.
 
@@ -46,7 +46,7 @@ Los vencimientos se procesan bajo demanda o con reservations:expire; falta progr
 - src/app/checkout/ y src/app/pedidos/: experiencia de prueba.
 - scripts/: PostgreSQL local, integración, pruebas HTTP y liberación de vencidos.
 
-Identidad y cuentas de desarrollo implementadas; detalles y límites en CUENTAS.md. Panel de catálogo e inventario implementado; detalles en ADMINISTRACION.md. El siguiente bloque es gestión administrativa de pedidos, manteniendo los pagos cerrados hasta definir proveedor. La publicación comercial sigue pendiente.
+Identidad y cuentas de desarrollo implementadas; detalles y límites en CUENTAS.md. Panel de catálogo e inventario implementado; detalles en ADMINISTRACION.md. La gestión administrativa de pedidos de ejemplo ya está disponible; los pagos siguen cerrados hasta definir proveedor. La publicación comercial sigue pendiente.
 
 ## Incremento de cuentas
 
@@ -55,3 +55,7 @@ Registro, acceso y logout; perfil editable; cinco direcciones privadas; roles pr
 ## Incremento de administración
 
 Panel protegido, creación/edición de productos y variantes, precio COP, galería de referencias locales, publicación/ocultamiento y búsqueda paginada. Ajustes de stock con motivo, autor e historial; versiones para evitar sobrescrituras; protección de reservas y movimientos transaccionales. Nueve grupos de integración y recorrido HTTP de administración. Revisión visual completa en escritorio y móvil; pieza de prueba ocultada y rol de la cuenta ficticia revocado al terminar. No se ha designado un administrador personal ni habilitado comercio.
+
+## Incremento de pedidos administrativos
+
+Listado paginado, búsqueda por número/nombre/correo, filtros por reserva y seguimiento, detalle privado con importes históricos, notas internas auditadas y cancelación transaccional. Siete grupos de pruebas PostgreSQL y recorrido HTTP aprobados; revisión visual de notas persistidas, cancelación y diseño móvil. Detalles en PEDIDOS-ADMIN.md. No hay cobros, despachos ni correos reales.
