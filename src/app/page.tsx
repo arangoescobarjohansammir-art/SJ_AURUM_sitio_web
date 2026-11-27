@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { products, categories } from "@/modules/catalog/products";
+import { categories } from "@/modules/catalog/products";
+import { catalog } from "@/modules/commerce/service";
 import { ProductCard } from "@/components/product-card";
 
-export default function Home() {
+export default async function Home() {
+  const products = await catalog();
   return (
     <main id="contenido">
       <section className="hero container">

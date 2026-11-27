@@ -9,7 +9,7 @@ export function ProductDetail({ product }: { product: Product }) {
   const [variantId, setVariantId] = useState(product.variants[0].id),
     [photo, setPhoto] = useState(product.gallery[0]);
   const variant = product.variants.find((v) => v.id === variantId)!;
-  const { add, ready, favorites, toggleFavorite } = useShop();
+  const { add, ready, busy, favorites, toggleFavorite } = useShop();
   return (
     <div className="detail-grid">
       <div>
@@ -69,7 +69,7 @@ export function ProductDetail({ product }: { product: Product }) {
         <div className="detail-actions">
           <button
             className="button"
-            disabled={!ready || variant.stock === 0}
+            disabled={!ready || busy || variant.stock === 0}
             onClick={() => add(variant.id)}
           >
             Agregar a la bolsa

@@ -24,7 +24,7 @@ export type Product = {
   gallery: string[];
   description: string;
   variants: Variant[];
-  demo: true;
+  demo: boolean;
 };
 const fixture = (
   slug: string,

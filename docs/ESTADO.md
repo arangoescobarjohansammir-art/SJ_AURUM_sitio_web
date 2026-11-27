@@ -1,53 +1,49 @@
-# Estado de desarrollo — primera entrega
+# Estado de desarrollo — datos y pedidos de prueba
 
-26 de noviembre de 2026 (Colombia). El proyecto continúa en desarrollo. Este documento no certifica que se haya cumplido el alcance final.
+26 de noviembre de 2026, Colombia. Entrega incremental; no certifica el alcance final completo.
 
 ## Implementado
 
-- Fase 0: inventario de 14 HTML, 15 imágenes y guía de Stitch, revisión de scripts, logo, entorno y remoto GitHub; arquitectura y riesgos en AUDITORIA.md.
-- Fase 1: Next.js/TypeScript, React, dependencias bloqueadas, fuentes locales, paleta, logo íntegro, variables de entorno vacías, cabeceras básicas y documentación.
-- Primera unidad de fase 2: inicio editorial responsive, categorías, catálogo con búsqueda normalizada, categoría, máximo de precio, disponibilidad, orden ascendente/descendente, carga adicional y estados vacíos.
-- Detalle visual con galería, selección de variantes, disponibilidad ilustrativa, especificaciones pendientes y relacionados.
-- Favoritos y bolsa persistidos en navegador: añadir, limitar por stock de ejemplo, cambiar cantidad, eliminar toda una línea y calcular subtotal COP. No hay persistencia servidor ni reservas reales.
-- Páginas de marca y notas de información pendientes de aprobación; 404 propia y enlace de salto al contenido.
+- Fases 0–1: auditoría de 14 HTML, 15 imágenes y guía de Stitch; identidad, arquitectura y proyecto Next.js/TypeScript.
+- Fase 2: inicio editorial, catálogo responsive con búsqueda/filtros/orden, detalle con galería y variantes, favoritos, bolsa y notas informativas.
+- Primera unidad de fase 3: PostgreSQL 17 de desarrollo, Prisma 7, migración SQL, seed protegido de ejemplos, catálogo y precios del servidor, bolsa persistida, tarifas por destino y cupón limitado.
+- Checkout de prueba con datos ficticios precargados, revisión de importe, consentimiento de demostración y reserva persistida durante 15 minutos.
+- Historial de sesión, cancelación y vencimiento, devolución de inventario y cupón con movimientos auditables. Idempotencia y transacciones serializables.
+- Cookie HttpOnly, hash del token en base, verificación de origen, validación Zod, límite de cuerpo y límites de frecuencia. Datos de destinatario no expuestos en la API de historial.
 
-## Validación realizada
+## Verificación
 
-- TypeScript sin errores.
-- Siete pruebas automatizadas: filtros combinados, orden sin mutación, datos manipulados, variante agotada, duplicados de carrito, eliminación completa de una línea, formato COP y conversión a centavos (dos casos agrupados en money.test.ts).
-- Compilación de producción correcta.
-- npm audit: cero vulnerabilidades conocidas tras fijar effect 3.22.1 y actualizar Prisma.
-- Navegador: inicio → catálogo → filtros sin resultados → limpiar → favorito → detalle → variante agotada bloqueada → añadir variante de 60 cm → aumentar a dos → recargar → subtotal $290.000 → eliminar → bolsa vacía.
-- Revisión visual en escritorio y móvil 390×844; catálogo a 320×800 y 768×1024. El ancho de contenido coincidió con el viewport útil, sin desbordamiento horizontal. Ajuste adicional para mostrar los selectores en una columna a 320 px.
-- Se corrigieron advertencias de contenedor de imágenes y se ocultó el indicador de desarrollo que tapaba el botón Inicio móvil. Consola de la última revisión del catálogo sin warnings ni errores.
+- TypeScript, siete pruebas unitarias y compilación de producción correctos.
+- Ocho pruebas PostgreSQL: precios servidor y cantidades inválidas; concurrencia sobre última unidad; reintento idempotente; autorización y cancelación; cambio de precio; cupón de último uso y expiración; restricción SQL de stock; cierre del checkout fuera de desarrollo.
+- Pruebas HTTP: sesión obligatoria, origen externo rechazado, atributos de cookie, entrada inválida, cuerpo excesivo y aislamiento del historial.
+- Navegador: añadir una Cadena Cubana, revisar bolsa, elegir Bogotá, aplicar EJEMPLO10, revisar $145.000 − $14.500 + $12.000 = $142.500, confirmar, recargar historial y cancelar. La bolsa quedó vacía tras crear el pedido.
+- Resumen de checkout a 390 px y pedidos a 320 px sin desbordamiento horizontal; consola final sin errores ni advertencias.
+- Se conserva la validación previa de catálogo, favoritos, variantes agotadas y bolsa a tamaños móvil/tableta/escritorio.
 
-Estas pruebas no son una auditoría integral de seguridad, accesibilidad, dispositivos reales ni compra. No se probaron base de datos, identidad o pasarela porque aún no están implementadas.
+## Límites
 
-## Pendiente para cumplir el encargo
+Solo ejemplos; no compras, pagos, despachos, correos ni garantías comerciales. El historial pertenece al navegador mediante cookie, no a una cuenta. Borrar la cookie pierde el acceso a ese historial. Los favoritos siguen en localStorage. La bolsa del prototipo anterior no se migra automáticamente.
 
-1. Completar inicio conectado a datos: colecciones administrables, novedades, popularidad real y newsletter con consentimiento y almacenamiento. No mostrar reseñas hasta que existan.
-2. Fase 3: esquema/migraciones PostgreSQL, repositorios, productos administrables, precios servidor, cupones, envíos, checkout, pedidos y reservas transaccionales. El límite de stock del navegador actual no protege ventas reales.
-3. Fase 4: registro, login, verificación, recuperación, roles, perfil, direcciones, historial y seguimiento privado.
-4. Fase 5: Wompi u otro proveedor confirmado, verificación de webhook, idempotencia, conciliación, reembolsos, correo y transportadora.
-5. Fase 6: certificados verificables, condiciones versionadas, puntos, movimientos, recompensas y canjes.
-6. Fase 7: administración protegida de productos, imágenes, clientes, pedidos, inventario, marketing y configuración.
-7. Fase 8: integración, concurrencia, autorización, seguridad, accesibilidad, responsive ampliado y rendimiento.
-8. Fase 9: hosting, dominio, HTTPS, datos y políticas reales aprobados, copias/restauración, monitoreo y compra de validación.
+Los vencimientos se procesan bajo demanda o con reservations:expire; falta programar y monitorizar el proceso para producción. No hay aún política de retención, limpieza de sesiones, protección perimetral ni auditoría de seguridad completa. La base local y sus credenciales no se versionan.
 
-## Datos y operación
+## Pendiente
 
-El usuario autorizó usar ejemplos mientras prepara catálogo y políticas. Eso permite avanzar con fixtures, pero no habilita garantías inventadas o cobros simulados. No se han solicitado claves por chat. No se creó hosting ni se publicó la tienda; el despliegue corresponde a la fase 9 del encargo.
+1. Completar fase 2: colecciones administrables, novedades/popularidad respaldadas por datos y newsletter con consentimiento.
+2. Completar fase 3 con configuración comercial real, gestión de catálogo y futura transición a pagos. La reserva de demostración no sustituye una venta.
+3. Fase 4: registro, acceso, verificación, recuperación, roles, perfil, direcciones e historial asociado a cuenta.
+4. Fase 5: proveedor de pagos confirmado, webhooks verificados, conciliación, reembolsos, correo y transporte.
+5. Fase 6: certificados, condiciones versionadas y fidelización.
+6. Fase 7: administración autorizada de productos, clientes, pedidos, inventario y configuración.
+7. Fase 8: ampliar pruebas de seguridad, accesibilidad, rendimiento y dispositivos.
+8. Fase 9: hosting, dominio, HTTPS, datos/políticas aprobados, copias/restauración, monitoreo y compra validada.
 
-La siguiente unidad técnica es el modelo de datos y los servicios transaccionales. Se necesita un PostgreSQL de desarrollo para probar las migraciones y la concurrencia; no hay PostgreSQL/Docker disponible en PATH en este entorno ni una conexión configurada.
+## Archivos
 
-## Archivos principales
+- prisma/: esquema, migración con restricciones y seed.
+- src/modules/commerce/: reglas de pedidos e inventario y validadores.
+- src/lib/http.ts: sesión y protección HTTP.
+- src/app/api/: catálogo, bolsa, cotización y pedidos.
+- src/app/checkout/ y src/app/pedidos/: experiencia de prueba.
+- scripts/: PostgreSQL local, integración, pruebas HTTP y liberación de vencidos.
 
-- `src/app/`: rutas, composición y estilos.
-- `src/components/`: navegación, tarjetas, filtros, detalle y estado de sesión de navegador.
-- `src/modules/catalog/`: fixtures autorizados y filtros.
-- `src/modules/cart/`: validación de la bolsa ilustrativa.
-- `tests/`: pruebas de catálogo, carrito e importes.
-- `public/`: logotipo y fotos de referencia.
-- `docs/`: auditoría, fuentes y este estado.
-
-Preparación guardada inicialmente en el commit `8606ad3`. La interfaz se guarda en un commit separado. Consultar `git log` para hashes completos y comprobar remoto con `git remote -v`; el informe del chat distingue el push del commit local.
+El siguiente bloque funcional es identidad y cuentas de clientes. La publicación comercial sigue pendiente.

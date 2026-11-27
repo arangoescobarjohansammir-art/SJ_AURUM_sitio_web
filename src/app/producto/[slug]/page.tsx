@@ -1,17 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { products } from "@/modules/catalog/products";
+import { catalog } from "@/modules/commerce/service";
 import { ProductDetail } from "@/components/product-detail";
 import { ProductCard } from "@/components/product-card";
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
-}
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const products = await catalog();
   return {
     title: products.find((p) => p.slug === slug)?.name ?? "Pieza no encontrada",
   };
@@ -22,6 +20,7 @@ export default async function Page({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const products = await catalog();
   const product = products.find((p) => p.slug === slug);
   if (!product) notFound();
   return (

@@ -1,79 +1,105 @@
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
-import { findVariant, products } from "@/modules/catalog/products";
-import { sanitizeCart, type CartLine } from "@/modules/cart/cart";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import type { Product } from "@/modules/catalog/products";
+import { api, type CartLine } from "@/lib/api-client";
 type Shop = {
   cart: CartLine[];
+  products: Product[];
   favorites: string[];
   ready: boolean;
-  add: (id: string) => void;
-  setQuantity: (id: string, n: number) => void;
+  busy: boolean;
+  error: string;
+  refresh: () => Promise<void>;
+  add: (id: string) => Promise<void>;
+  setQuantity: (id: string, n: number) => Promise<void>;
   toggleFavorite: (id: string) => void;
 };
 const Context = createContext<Shop | null>(null);
-export function ShopProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartLine[]>([]),
+export function ShopProvider({
+  children,
+  initialProducts,
+}: {
+  children: React.ReactNode;
+  initialProducts: Product[];
+}) {
+  const [products, setProducts] = useState(initialProducts),
+    [cart, setCart] = useState<CartLine[]>([]),
     [favorites, setFavorites] = useState<string[]>([]),
     [ready, setReady] = useState(false),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState(""),
     [message, setMessage] = useState("");
+  const lock = useRef(false),
+    started = useRef(false);
+  async function refresh() {
+    const [session, catalog] = await Promise.all([
+      api<{ cart: CartLine[] }>("/api/session", "POST", {}),
+      api<{ products: Product[] }>("/api/catalog"),
+    ]);
+    setCart(session.cart);
+    setProducts(catalog.products);
+    setReady(true);
+    setError("");
+  }
   useEffect(() => {
+    if (started.current) return;
+    started.current = true;
     try {
-      setCart(
-        sanitizeCart(
-          JSON.parse(localStorage.getItem("aurum-demo-cart-v1") ?? "[]"),
-        ),
-      );
-      const saved: unknown = JSON.parse(
+      const saved = JSON.parse(
         localStorage.getItem("aurum-favorites-v1") ?? "[]",
       );
       if (Array.isArray(saved))
-        setFavorites([
-          ...new Set(
-            saved.filter(
-              (id): id is string =>
-                typeof id === "string" && products.some((p) => p.id === id),
-            ),
+        setFavorites(
+          saved.filter(
+            (id: unknown) =>
+              typeof id === "string" &&
+              initialProducts.some((p) => p.id === id),
           ),
-        ]);
+        );
     } catch {}
-    setReady(true);
+    void refresh().catch((e) => setError(e.message));
   }, []);
   useEffect(() => {
     if (!ready) return;
     try {
-      localStorage.setItem("aurum-demo-cart-v1", JSON.stringify(cart));
       localStorage.setItem("aurum-favorites-v1", JSON.stringify(favorites));
     } catch {
-      setMessage("Tu navegador no permite guardar la bolsa entre visitas.");
+      setMessage("No se pudieron guardar los favoritos en este navegador.");
     }
-  }, [cart, favorites, ready]);
+  }, [favorites, ready]);
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => setMessage(""), 4500);
       return () => clearTimeout(timer);
     }
   }, [message]);
-  function add(id: string) {
-    const found = findVariant(id);
-    if (!ready || !found || found.variant.stock < 1) return;
-    const current = cart.find((l) => l.variantId === id)?.quantity ?? 0;
-    setCart((lines) =>
-      sanitizeCart([...lines, { variantId: id, quantity: 1 }]),
-    );
-    setMessage(
-      current >= found.variant.stock
-        ? "Alcanzaste las existencias de ejemplo."
-        : `${found.product.name} añadida a tu bolsa de ejemplo.`,
-    );
+  async function setQuantity(id: string, n: number) {
+    if (lock.current || !ready) return;
+    lock.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      const result = await api<{ cart: CartLine[] }>("/api/cart", "PUT", {
+        variantId: id,
+        quantity: n,
+      });
+      setCart(result.cart);
+      setMessage(
+        n ? "Bolsa de prueba actualizada." : "Pieza retirada de tu bolsa.",
+      );
+    } catch (e) {
+      setError(
+        e instanceof Error ? e.message : "No pudimos actualizar la bolsa.",
+      );
+    } finally {
+      lock.current = false;
+      setBusy(false);
+    }
   }
-  function setQuantity(id: string, n: number) {
-    if (!ready || !Number.isSafeInteger(n) || n < 0) return;
-    setCart((lines) =>
-      sanitizeCart(
-        n === 0
-          ? lines.filter((l) => l.variantId !== id)
-          : lines.map((l) => (l.variantId === id ? { ...l, quantity: n } : l)),
-      ),
+  async function add(id: string) {
+    await setQuantity(
+      id,
+      (cart.find((l) => l.variantId === id)?.quantity ?? 0) + 1,
     );
   }
   function toggleFavorite(id: string) {
@@ -84,8 +110,30 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   }
   return (
     <Context.Provider
-      value={{ cart, favorites, ready, add, setQuantity, toggleFavorite }}
+      value={{
+        cart,
+        products,
+        favorites,
+        ready,
+        busy,
+        error,
+        refresh,
+        add,
+        setQuantity,
+        toggleFavorite,
+      }}
     >
+      {error && (
+        <div className="container notice" role="alert">
+          {error}{" "}
+          <button
+            className="text-button"
+            onClick={() => void refresh().catch((e) => setError(e.message))}
+          >
+            Reintentar conexión
+          </button>
+        </div>
+      )}
       {children}
       <div className="toast" role="status" aria-live="polite">
         {message}

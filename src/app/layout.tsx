@@ -7,6 +7,8 @@ import "./globals.css";
 import { ShopProvider } from "@/components/shop-provider";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { catalog } from "@/modules/commerce/service";
+import { connection } from "next/server";
 
 export const metadata: Metadata = {
   title: {
@@ -17,16 +19,18 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  await connection();
+  const products = await catalog();
   return (
     <html lang="es-CO">
       <body>
         <a className="skip-link" href="#contenido">
           Saltar al contenido
         </a>
-        <ShopProvider>
+        <ShopProvider initialProducts={products}>
           <Header />
           {children}
           <Footer />

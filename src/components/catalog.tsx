@@ -2,24 +2,29 @@
 import { useState } from "react";
 import { categories, filterProducts } from "@/modules/catalog/products";
 import { ProductCard } from "./product-card";
+import { useShop } from "./shop-provider";
 export function Catalog({
   initialCategory = "",
 }: {
   initialCategory?: string;
 }) {
+  const { products } = useShop();
   const [query, setQuery] = useState(""),
     [category, setCategory] = useState(initialCategory),
     [maxPrice, setMaxPrice] = useState(""),
     [sort, setSort] = useState("selection"),
     [available, setAvailable] = useState(false),
     [limit, setLimit] = useState(4);
-  const filtered = filterProducts({
-    query,
-    category,
-    maxPrice: maxPrice ? Number(maxPrice) : undefined,
-    sort,
-    availableOnly: available,
-  });
+  const filtered = filterProducts(
+    {
+      query,
+      category,
+      maxPrice: maxPrice ? Number(maxPrice) : undefined,
+      sort,
+      availableOnly: available,
+    },
+    products,
+  );
   function reset() {
     setQuery("");
     setCategory("");

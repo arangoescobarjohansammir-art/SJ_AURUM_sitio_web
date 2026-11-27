@@ -2,9 +2,8 @@
 import Link from "next/link";
 import { useShop } from "@/components/shop-provider";
 import { ProductCard } from "@/components/product-card";
-import { products } from "@/modules/catalog/products";
 export default function Page() {
-  const { favorites, ready } = useShop();
+  const { favorites, ready, products } = useShop();
   const selected = products.filter((p) => favorites.includes(p.id));
   return (
     <main id="contenido" className="container page">
